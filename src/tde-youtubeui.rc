@@ -1,0 +1,61 @@
+<!DOCTYPE kpartgui SYSTEM "kpartgui.dtd">
+<kpartgui name="tde-youtube" version="1">
+  <MenuBar>
+    <Menu name="file" noMerge="1">
+      <text>&amp;File</text>
+      <Action name="open_url"/>
+      <Separator/>
+      <Action name="file_quit"/>
+    </Menu>
+    <Menu name="search_menu">
+      <text>&amp;Search</text>
+      <Action name="search_focus"/>
+      <Action name="search"/>
+      <Action name="search_more"/>
+    </Menu>
+    <Menu name="video_menu">
+      <text>&amp;Video</text>
+      <Action name="video_play"/>
+      <Action name="video_play_external"/>
+      <Separator/>
+      <Action name="video_favourite"/>
+      <Action name="video_remove"/>
+      <Separator/>
+      <Action name="video_channel"/>
+      <Action name="video_copy_url"/>
+      <Action name="video_open_browser"/>
+    </Menu>
+    <Menu name="player_menu">
+      <text>&amp;Player</text>
+      <Action name="player_pause"/>
+      <Action name="player_stop"/>
+      <Separator/>
+      <Action name="player_backward"/>
+      <Action name="player_forward"/>
+      <Separator/>
+      <Action name="volume_up"/>
+      <Action name="volume_down"/>
+    </Menu>
+    <Menu name="view">
+      <text>&amp;View</text>
+      <Action name="view_search"/>
+      <Action name="view_favourites"/>
+      <Action name="view_history"/>
+      <Separator/>
+      <Action name="fullscreen"/>
+    </Menu>
+  </MenuBar>
+  <ToolBar name="mainToolBar" fullWidth="true" iconText="icononly" noMerge="1">
+    <text>Main Toolbar</text>
+    <Action name="search_box"/>
+    <Action name="search"/>
+    <Separator/>
+    <Action name="player_pause"/>
+    <Action name="player_stop"/>
+    <Separator/>
+    <Action name="video_favourite"/>
+    <Action name="video_open_browser"/>
+    <Separator/>
+    <Action name="fullscreen"/>
+  </ToolBar>
+</kpartgui>

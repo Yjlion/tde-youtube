@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=TDE YouTube
+GenericName=YouTube Browser
+Comment=Search, browse and play YouTube videos
+Exec=tde-youtube %u
+Icon=tde-youtube
+Terminal=false
+Categories=Qt;TDE;AudioVideo;Video;Player;TV;
+Keywords=youtube;video;stream;player;
+X-DocPath=tde-youtube/index.html
+X-DCOP-ServiceType=Multi
