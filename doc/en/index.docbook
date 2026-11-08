@@ -1,0 +1,803 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.2-Based Variant V1.1//EN"
+"dtd/kdex.dtd" [
+  <!ENTITY kappname "<application>TDE YouTube</application>">
+  <!ENTITY package "tde-youtube">
+  <!ENTITY ytdlp "<application>yt-dlp</application>">
+  <!ENTITY mpv "<application>mpv</application>">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % English "INCLUDE">
+]>
+
+<book lang="&language;">
+
+<bookinfo>
+<title>The &kappname; Handbook</title>
+
+<authorgroup>
+<author>
+<othername>tde-youtube contributors</othername>
+</author>
+<!-- TRANS:ROLES_OF_TRANSLATORS -->
+</authorgroup>
+
+<copyright>
+<year>2026</year>
+<holder>tde-youtube contributors</holder>
+</copyright>
+
+<legalnotice>&FDLNotice;</legalnotice>
+
+<date>2026-11-07</date>
+<releaseinfo>0.1.0</releaseinfo>
+
+<abstract>
+<para>
+&kappname; is a small application for the Trinity Desktop Environment that
+lets you search, browse and watch YouTube videos without a web browser.
+</para>
+</abstract>
+
+<keywordset>
+<keyword>TDE</keyword>
+<keyword>Trinity</keyword>
+<keyword>YouTube</keyword>
+<keyword>video</keyword>
+<keyword>mpv</keyword>
+<keyword>yt-dlp</keyword>
+<keyword>tde-youtube</keyword>
+</keywordset>
+
+</bookinfo>
+
+<!-- ================================================================== -->
+<chapter id="introduction">
+<title>Introduction</title>
+
+<para>
+&kappname; is a native &tde; application for browsing and playing YouTube
+videos. You type a search into the tool bar, pick a video from the list of
+results with their thumbnails, and it plays right inside the window. You can
+keep videos you like in your <emphasis>Favourites</emphasis> and find videos
+you have watched before in your <emphasis>History</emphasis>.
+</para>
+
+<para>
+&kappname; does not talk to YouTube itself. It relies on two well known
+free programs:
+</para>
+
+<itemizedlist>
+<listitem><para>
+&ytdlp; searches YouTube and reads information about videos, channels and
+playlists. No YouTube account or <acronym>API</acronym> key is needed.
+</para></listitem>
+<listitem><para>
+&mpv; plays the videos. &kappname; embeds the &mpv; video window and
+controls it remotely, so play/pause, seeking and volume work from the
+&kappname; window.
+</para></listitem>
+</itemizedlist>
+
+<sect1 id="features">
+<title>Features</title>
+<itemizedlist>
+<listitem><para>Search YouTube, with a remembered search history.</para></listitem>
+<listitem><para>Open the address of a video, playlist or channel directly.</para></listitem>
+<listitem><para>Result lists with thumbnails, duration, channel and view count.</para></listitem>
+<listitem><para>Video player embedded in the main window, or in a separate &mpv; window.</para></listitem>
+<listitem><para>Play/pause, stop, seek, volume and full screen mode.</para></listitem>
+<listitem><para>Choice of video quality, from 360p up to the best available, or audio only.</para></listitem>
+<listitem><para>Video details with the full description, likes and upload date.</para></listitem>
+<listitem><para>Favourites and watch history, stored locally.</para></listitem>
+<listitem><para>Show all videos of a channel with one click.</para></listitem>
+<listitem><para>Copy a video's address, or open it in your web browser.</para></listitem>
+<listitem><para>Configurable keyboard shortcuts and tool bars, like every &tde; application.</para></listitem>
+</itemizedlist>
+</sect1>
+
+<sect1 id="disclaimer">
+<title>Please Note</title>
+<para>
+&kappname; was largely written with the help of an AI coding assistant
+(it is <quote>vibe coded</quote>). The code has not been audited. It is
+provided as is, without any warranty; use it at your own risk.
+</para>
+<para>
+&kappname; is not affiliated with, endorsed or sponsored by YouTube or
+Google. <quote>YouTube</quote> is a trademark of Google LLC. Please respect
+YouTube's terms of service and the rights of the people who make the videos.
+</para>
+</sect1>
+
+<sect1 id="requirements">
+<title>Requirements</title>
+<para>
+Besides the &tde; libraries, &kappname; needs:
+</para>
+<itemizedlist>
+<listitem><para>
+<command>yt-dlp</command> &mdash; <ulink url="https://github.com/yt-dlp/yt-dlp">https://github.com/yt-dlp/yt-dlp</ulink>.
+YouTube changes often, so keep &ytdlp; up to date. Distribution packages
+can lag behind; if searching or playing stops working, install the latest
+release.
+</para></listitem>
+<listitem><para>
+<command>mpv</command> &mdash; <ulink url="https://mpv.io">https://mpv.io</ulink>, version 0.35 or newer is recommended.
+</para></listitem>
+</itemizedlist>
+</sect1>
+</chapter>
+
+<!-- ================================================================== -->
+<chapter id="using">
+<title>Using &kappname;</title>
+
+<sect1 id="main-window">
+<title>The Main Window</title>
+
+<screenshot>
+<screeninfo>The &kappname; main window</screeninfo>
+<mediaobject>
+<imageobject><imagedata fileref="main-window.png" format="PNG"/></imageobject>
+<textobject><phrase>The &kappname; main window</phrase></textobject>
+</mediaobject>
+</screenshot>
+
+<para>The main window is made of these parts:</para>
+<variablelist>
+<varlistentry>
+<term>The search box</term>
+<listitem><para>
+In the tool bar. Type what you are looking for and press &Enter;. Earlier
+searches can be picked from its drop down list.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>The video lists</term>
+<listitem><para>
+On the left, with three tabs: <guilabel>Search</guilabel> (the results of the
+last search), <guilabel>Favourites</guilabel> and <guilabel>History</guilabel>.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>The player</term>
+<listitem><para>
+At the top right, with the player controls below the picture.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>The details pane</term>
+<listitem><para>
+At the bottom right. It shows the title, channel, duration, views, likes,
+upload date and the description of the selected video. Links in the
+description open in your web browser.
+</para></listitem>
+</varlistentry>
+</variablelist>
+<para>
+The borders between the parts can be dragged to make them larger or
+smaller; &kappname; remembers the layout.
+</para>
+</sect1>
+
+<sect1 id="searching">
+<title>Searching</title>
+<para>
+Click into the search box (or press <keycombo action="simul">&Ctrl;<keycap>F</keycap></keycombo>),
+type a few words and press &Enter;. The results appear in the
+<guilabel>Search</guilabel> tab as soon as they arrive, and their thumbnails
+are loaded in the background. The first result is selected automatically,
+and its details are shown on the right.
+</para>
+<para>
+By default 20 videos are listed. Click <guibutton>More Results</guibutton>
+below the list (or press <keycombo action="simul">&Ctrl;<keycap>M</keycap></keycombo>)
+to load more. The number of results per search can be changed in the
+<link linkend="config-playback">settings</link>.
+</para>
+
+<sect2 id="opening-urls">
+<title>Opening Addresses</title>
+<para>
+Instead of search words you can paste the address of a YouTube video,
+playlist or channel into the search box, or use
+<menuchoice><guimenu>File</guimenu><guimenuitem>Open URL...</guimenuitem></menuchoice>.
+The address of a single video (for example
+<literal>https://www.youtube.com/watch?v=...</literal> or
+<literal>https://youtu.be/...</literal>) starts playing right away. A
+playlist or channel address lists its videos; for a channel these are its
+most recent uploads.
+</para>
+<para>
+You can also start &kappname; with an address on the command line, see
+<xref linkend="commandline"/>.
+</para>
+</sect2>
+
+<sect2 id="channels">
+<title>Videos of a Channel</title>
+<para>
+To see more videos from the same channel, select a video and choose
+<menuchoice><guimenu>Video</guimenu><guimenuitem>Show Channel Videos</guimenuitem></menuchoice>
+(<keycombo action="simul">&Ctrl;<keycap>U</keycap></keycombo>), or use the
+context menu of the video.
+</para>
+</sect2>
+</sect1>
+
+<sect1 id="watching">
+<title>Watching Videos</title>
+
+<screenshot>
+<screeninfo>Watching a video</screeninfo>
+<mediaobject>
+<imageobject><imagedata fileref="playing.png" format="PNG"/></imageobject>
+<textobject><phrase>Watching a video</phrase></textobject>
+</mediaobject>
+</screenshot>
+
+<para>
+Double-click a video, or select it and press &Enter;, to play it. It takes a
+moment until &ytdlp; has found the video stream; the player shows
+<guilabel>Loading</guilabel> meanwhile. Every video you play is added to
+your <link linkend="favourites-history">History</link>.
+</para>
+
+<para>The controls below the picture are, from left to right:</para>
+<variablelist>
+<varlistentry>
+<term><guiicon>Play/Pause</guiicon></term>
+<listitem><para>Pauses or resumes the video (<keycap>Space</keycap>).</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guiicon>Stop</guiicon></term>
+<listitem><para>Stops playback (<keycombo action="simul">&Ctrl;<keycap>.</keycap></keycombo>).</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Position slider</term>
+<listitem><para>
+Shows how far the video has played. Drag it, or click into it, to jump to
+another position. <keycombo action="simul">&Ctrl;<keysym>Right</keysym></keycombo>
+and <keycombo action="simul">&Ctrl;<keysym>Left</keysym></keycombo> skip ten seconds forward
+and backward.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Time</term>
+<listitem><para>The current position and the length of the video, or <guilabel>Buffering...</guilabel>.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term>Volume slider</term>
+<listitem><para>
+Sets the volume (also <keycombo action="simul">&Ctrl;<keysym>Up</keysym></keycombo> and
+<keycombo action="simul">&Ctrl;<keysym>Down</keysym></keycombo>). The volume is remembered.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guiicon>Full Screen</guiicon></term>
+<listitem><para>Switches full screen mode on and off.</para></listitem>
+</varlistentry>
+</variablelist>
+
+<sect2 id="fullscreen">
+<title>Full Screen Mode</title>
+<para>
+In full screen mode only the video and the player controls are shown. Enter
+it with the <guiicon>Full Screen</guiicon> button,
+<keycombo action="simul">&Ctrl;&Shift;<keycap>F</keycap></keycombo>, by
+double-clicking the video or by pressing <keycap>F</keycap> while the video
+has the keyboard focus. Leave it the same way or with &Esc;.
+</para>
+</sect2>
+
+<sect2 id="external-player">
+<title>Playing in a Separate Window</title>
+<para>
+<menuchoice><guimenu>Video</guimenu><guimenuitem>Play in External Player</guimenuitem></menuchoice>
+(<keycombo action="simul">&Ctrl;&Shift;<keycap>P</keycap></keycombo>) plays the
+selected video in its own &mpv; window. All &mpv; keyboard shortcuts work
+there. The &kappname; player controls still control it. If you always want
+a separate window, switch off <guilabel>Embed the video in the main window</guilabel>
+in the <link linkend="config-playback">settings</link>.
+</para>
+</sect2>
+</sect1>
+
+<sect1 id="favourites-history">
+<title>Favourites and History</title>
+
+<screenshot>
+<screeninfo>Favourites</screeninfo>
+<mediaobject>
+<imageobject><imagedata fileref="favourites.png" format="PNG"/></imageobject>
+<textobject><phrase>The Favourites tab</phrase></textobject>
+</mediaobject>
+</screenshot>
+
+<para>
+To keep a video, select it and choose
+<menuchoice><guimenu>Video</guimenu><guimenuitem>Add to Favourites</guimenuitem></menuchoice>
+(<keycombo action="simul">&Ctrl;<keycap>D</keycap></keycombo>), click the star
+in the tool bar, or use the context menu. The same command removes a
+favourite again. Your favourites are listed in the
+<guilabel>Favourites</guilabel> tab, newest first.
+</para>
+<para>
+The <guilabel>History</guilabel> tab lists the videos you have played,
+most recent first. The history can be switched off, limited, or cleared
+on the <link linkend="config-history">History</link> page of the settings.
+</para>
+<para>
+In both tabs, <menuchoice><guimenu>Video</guimenu><guimenuitem>Remove from List</guimenuitem></menuchoice>
+(<keycap>Del</keycap>) removes the selected video from that list.
+</para>
+<para>
+Favourites and history are kept on your computer only, in the file
+<filename>~/.trinity/share/config/tde-youtube-libraryrc</filename>.
+</para>
+</sect1>
+
+<sect1 id="context-menu">
+<title>The Context Menu</title>
+<para>
+Click a video with the &RMB; for a menu with the most important commands:
+<guimenuitem>Play</guimenuitem>, <guimenuitem>Play in External Player</guimenuitem>,
+<guimenuitem>Add to Favourites</guimenuitem>, <guimenuitem>Show Channel Videos</guimenuitem>,
+<guimenuitem>Copy Video Address</guimenuitem> and <guimenuitem>Open in Web Browser</guimenuitem>.
+</para>
+</sect1>
+</chapter>
+
+<!-- ================================================================== -->
+<chapter id="configuration">
+<title>Configuring &kappname;</title>
+<para>
+Choose <menuchoice><guimenu>Settings</guimenu><guimenuitem>Configure TDE YouTube...</guimenuitem></menuchoice>
+to open the settings dialog. Like in every &tde; application you can also
+change the keyboard shortcuts
+(<menuchoice><guimenu>Settings</guimenu><guimenuitem>Configure Shortcuts...</guimenuitem></menuchoice>)
+and the tool bar
+(<menuchoice><guimenu>Settings</guimenu><guimenuitem>Configure Toolbars...</guimenuitem></menuchoice>).
+</para>
+
+<sect1 id="config-playback">
+<title>Playback</title>
+<screenshot>
+<screeninfo>The Playback page</screeninfo>
+<mediaobject>
+<imageobject><imagedata fileref="settings-playback.png" format="PNG"/></imageobject>
+<textobject><phrase>The Playback page of the settings dialog</phrase></textobject>
+</mediaobject>
+</screenshot>
+<variablelist>
+<varlistentry>
+<term><guilabel>Preferred quality</guilabel></term>
+<listitem><para>
+The highest video resolution to request: <guilabel>Best available</guilabel>,
+<guilabel>Up to 1080p</guilabel> (the default), <guilabel>Up to 720p</guilabel>,
+<guilabel>Up to 480p</guilabel>, <guilabel>Up to 360p</guilabel> or
+<guilabel>Audio only</guilabel>. Lower resolutions need less bandwidth and
+processing power.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Embed the video in the main window</guilabel></term>
+<listitem><para>
+When checked (the default), videos play inside the &kappname; window.
+Otherwise &mpv; opens its own window.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Extra mpv options</guilabel></term>
+<listitem><para>
+Additional command line options for &mpv;, separated by spaces, for example
+<userinput>--hwdec=auto</userinput> to use hardware video decoding. See
+<citerefentry><refentrytitle>mpv</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Results per search</guilabel></term>
+<listitem><para>
+How many videos a search lists, and how many more <guibutton>More Results</guibutton> adds (5 to 100).
+</para></listitem>
+</varlistentry>
+</variablelist>
+</sect1>
+
+<sect1 id="config-programs">
+<title>Programs</title>
+<screenshot>
+<screeninfo>The Programs page</screeninfo>
+<mediaobject>
+<imageobject><imagedata fileref="settings-programs.png" format="PNG"/></imageobject>
+<textobject><phrase>The Programs page of the settings dialog</phrase></textobject>
+</mediaobject>
+</screenshot>
+<variablelist>
+<varlistentry>
+<term><guilabel>yt-dlp</guilabel> and <guilabel>mpv</guilabel></term>
+<listitem><para>
+The commands used to run &ytdlp; and &mpv;. A plain command name is looked
+up in your <envar>PATH</envar>; you can also enter a full path, for example
+to use a newer &ytdlp; installed in your home folder.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Use cookies from browser</guilabel></term>
+<listitem><para>
+Sometimes YouTube refuses to answer unless you are signed in, and
+&kappname; reports <quote>Sign in to confirm you're not a bot</quote>.
+Choose a web browser in which you are signed in to YouTube, and &ytdlp;
+will use its cookies. You can also type
+<userinput>browser:profile</userinput>, for example
+<userinput>firefox:default-release</userinput>.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Cookies file</guilabel></term>
+<listitem><para>
+Alternatively, a file with cookies in the Netscape
+<filename>cookies.txt</filename> format.
+</para></listitem>
+</varlistentry>
+</variablelist>
+</sect1>
+
+<sect1 id="config-history">
+<title>History</title>
+<screenshot>
+<screeninfo>The History page</screeninfo>
+<mediaobject>
+<imageobject><imagedata fileref="settings-history.png" format="PNG"/></imageobject>
+<textobject><phrase>The History page of the settings dialog</phrase></textobject>
+</mediaobject>
+</screenshot>
+<variablelist>
+<varlistentry>
+<term><guilabel>Remember watched videos</guilabel></term>
+<listitem><para>Whether played videos are added to the history.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guilabel>Maximum history entries</guilabel></term>
+<listitem><para>Older entries are removed when the history grows beyond this size.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guibutton>Clear History</guibutton></term>
+<listitem><para>Removes all videos from the history.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><guibutton>Clear Thumbnail Cache</guibutton></term>
+<listitem><para>
+Deletes the downloaded thumbnails, which are kept in
+<filename>~/.trinity/share/cache/tde-youtube/thumbs</filename>.
+</para></listitem>
+</varlistentry>
+</variablelist>
+</sect1>
+</chapter>
+
+<!-- ================================================================== -->
+<chapter id="commands">
+<title>Command Reference</title>
+
+<sect1 id="menus">
+<title>Menus</title>
+
+<sect2 id="menu-file">
+<title>The <guimenu>File</guimenu> Menu</title>
+<variablelist>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keycap>O</keycap></keycombo></shortcut>
+<guimenu>File</guimenu><guimenuitem>Open URL...</guimenuitem></menuchoice></term>
+<listitem><para>Opens the address of a YouTube video, playlist or channel. An address on the clipboard is suggested.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keycap>Q</keycap></keycombo></shortcut>
+<guimenu>File</guimenu><guimenuitem>Quit</guimenuitem></menuchoice></term>
+<listitem><para>Quits &kappname;.</para></listitem>
+</varlistentry>
+</variablelist>
+</sect2>
+
+<sect2 id="menu-search">
+<title>The <guimenu>Search</guimenu> Menu</title>
+<variablelist>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keycap>F</keycap></keycombo></shortcut>
+<guimenu>Search</guimenu><guimenuitem>Focus Search Box</guimenuitem></menuchoice></term>
+<listitem><para>Moves the keyboard focus to the search box.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycap>F6</keycap></shortcut>
+<guimenu>Search</guimenu><guimenuitem>Search</guimenuitem></menuchoice></term>
+<listitem><para>Searches for the text in the search box.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keycap>M</keycap></keycombo></shortcut>
+<guimenu>Search</guimenu><guimenuitem>More Results</guimenuitem></menuchoice></term>
+<listitem><para>Adds more results to the search list.</para></listitem>
+</varlistentry>
+</variablelist>
+</sect2>
+
+<sect2 id="menu-video">
+<title>The <guimenu>Video</guimenu> Menu</title>
+<para>These commands work on the selected video, or on the playing one if no video is selected.</para>
+<variablelist>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keycap>P</keycap></keycombo></shortcut>
+<guimenu>Video</guimenu><guimenuitem>Play</guimenuitem></menuchoice></term>
+<listitem><para>Plays the video in the main window.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;&Shift;<keycap>P</keycap></keycombo></shortcut>
+<guimenu>Video</guimenu><guimenuitem>Play in External Player</guimenuitem></menuchoice></term>
+<listitem><para>Plays the video in a separate &mpv; window.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keycap>D</keycap></keycombo></shortcut>
+<guimenu>Video</guimenu><guimenuitem>Add to Favourites</guimenuitem></menuchoice></term>
+<listitem><para>Adds the video to your favourites, or removes it if it already is one.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycap>Del</keycap></shortcut>
+<guimenu>Video</guimenu><guimenuitem>Remove from List</guimenuitem></menuchoice></term>
+<listitem><para>Removes the video from the favourites or the history, depending on the tab shown.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keycap>U</keycap></keycombo></shortcut>
+<guimenu>Video</guimenu><guimenuitem>Show Channel Videos</guimenuitem></menuchoice></term>
+<listitem><para>Lists the latest videos of the video's channel.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;&Shift;<keycap>C</keycap></keycombo></shortcut>
+<guimenu>Video</guimenu><guimenuitem>Copy Video Address</guimenuitem></menuchoice></term>
+<listitem><para>Copies the video's YouTube address to the clipboard.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keycap>B</keycap></keycombo></shortcut>
+<guimenu>Video</guimenu><guimenuitem>Open in Web Browser</guimenuitem></menuchoice></term>
+<listitem><para>Opens the video's page in your web browser.</para></listitem>
+</varlistentry>
+</variablelist>
+</sect2>
+
+<sect2 id="menu-player">
+<title>The <guimenu>Player</guimenu> Menu</title>
+<variablelist>
+<varlistentry>
+<term><menuchoice><shortcut><keycap>Space</keycap></shortcut>
+<guimenu>Player</guimenu><guimenuitem>Pause</guimenuitem></menuchoice></term>
+<listitem><para>Pauses or resumes playback.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keycap>.</keycap></keycombo></shortcut>
+<guimenu>Player</guimenu><guimenuitem>Stop</guimenuitem></menuchoice></term>
+<listitem><para>Stops playback.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keysym>Left</keysym></keycombo></shortcut>
+<guimenu>Player</guimenu><guimenuitem>Skip Backward</guimenuitem></menuchoice></term>
+<listitem><para>Jumps back ten seconds.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keysym>Right</keysym></keycombo></shortcut>
+<guimenu>Player</guimenu><guimenuitem>Skip Forward</guimenuitem></menuchoice></term>
+<listitem><para>Jumps forward ten seconds.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keysym>Up</keysym></keycombo></shortcut>
+<guimenu>Player</guimenu><guimenuitem>Volume Up</guimenuitem></menuchoice></term>
+<listitem><para>Makes the sound louder.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keysym>Down</keysym></keycombo></shortcut>
+<guimenu>Player</guimenu><guimenuitem>Volume Down</guimenuitem></menuchoice></term>
+<listitem><para>Makes the sound quieter.</para></listitem>
+</varlistentry>
+</variablelist>
+</sect2>
+
+<sect2 id="menu-view">
+<title>The <guimenu>View</guimenu> Menu</title>
+<variablelist>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keycap>1</keycap></keycombo></shortcut>
+<guimenu>View</guimenu><guimenuitem>Search Results</guimenuitem></menuchoice></term>
+<listitem><para>Shows the <guilabel>Search</guilabel> tab.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keycap>2</keycap></keycombo></shortcut>
+<guimenu>View</guimenu><guimenuitem>Favourites</guimenuitem></menuchoice></term>
+<listitem><para>Shows the <guilabel>Favourites</guilabel> tab.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;<keycap>3</keycap></keycombo></shortcut>
+<guimenu>View</guimenu><guimenuitem>History</guimenuitem></menuchoice></term>
+<listitem><para>Shows the <guilabel>History</guilabel> tab.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><menuchoice><shortcut><keycombo action="simul">&Ctrl;&Shift;<keycap>F</keycap></keycombo></shortcut>
+<guimenu>View</guimenu><guimenuitem>Full Screen Mode</guimenuitem></menuchoice></term>
+<listitem><para>Switches full screen mode on and off.</para></listitem>
+</varlistentry>
+</variablelist>
+</sect2>
+
+<sect2 id="menu-settings-help">
+<title>The <guimenu>Settings</guimenu> and <guimenu>Help</guimenu> Menus</title>
+<para>
+&kappname; has the common &tde; <guimenu>Settings</guimenu> and
+<guimenu>Help</guimenu> menus. The <guimenu>Settings</guimenu> menu also has
+<guimenuitem>Configure TDE YouTube...</guimenuitem>, described in
+<xref linkend="configuration"/>. For the other entries, see the chapters on
+the <ulink url="help:/khelpcenter/menus.html#menus-settings">Settings menu</ulink>
+and <ulink url="help:/khelpcenter/menus.html#menus-help">Help menu</ulink> of
+the &tde; fundamentals.
+</para>
+</sect2>
+</sect1>
+
+<sect1 id="commandline">
+<title>Command Line Options</title>
+<para>
+<cmdsynopsis>
+<command>tde-youtube</command>
+<group choice="opt"><option>-s, --search</option> <replaceable>query</replaceable></group>
+<arg choice="opt"><replaceable>URL</replaceable></arg>
+<arg choice="opt" rep="repeat">generic TDE and TQt options</arg>
+</cmdsynopsis>
+</para>
+<variablelist>
+<varlistentry>
+<term><option>-s</option>, <option>--search</option> <replaceable>query</replaceable></term>
+<listitem><para>Searches YouTube for <replaceable>query</replaceable> on start-up.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><replaceable>URL</replaceable></term>
+<listitem><para>Opens a YouTube address: a video starts playing, a playlist or channel is listed.</para></listitem>
+</varlistentry>
+</variablelist>
+<para>
+<command>tde-youtube --help-all</command> lists all options. The manual page
+<citerefentry><refentrytitle>tde-youtube</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+describes them in more detail.
+</para>
+</sect1>
+</chapter>
+
+<!-- ================================================================== -->
+<chapter id="faq">
+<title>Questions and Answers</title>
+
+<qandaset id="faqlist">
+<qandaentry>
+<question><para>Nothing plays and I see <quote>Sign in to confirm you're not a bot</quote>.</para></question>
+<answer><para>
+YouTube sometimes refuses requests that are not from a signed in user,
+especially from shared or data centre networks. Select a web browser in
+which you are signed in to YouTube under
+<guilabel>Use cookies from browser</guilabel> on the
+<link linkend="config-programs">Programs</link> page of the settings.
+</para></answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>Searching or playing suddenly stopped working.</para></question>
+<answer><para>
+YouTube changes frequently and old versions of &ytdlp; stop working. Update
+&ytdlp; to the latest release, for example with
+<userinput><command>yt-dlp</command> <option>-U</option></userinput> (if it was installed
+from its release page) or <userinput><command>pipx</command> upgrade yt-dlp</userinput>.
+You can point &kappname; at a newer copy on the
+<link linkend="config-programs">Programs</link> page.
+</para></answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>&kappname; says it could not run yt-dlp or mpv.</para></question>
+<answer><para>
+Install the program with your package manager, or enter its full path on the
+<link linkend="config-programs">Programs</link> page of the settings.
+</para></answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>Videos stutter or use a lot of CPU.</para></question>
+<answer><para>
+Choose a lower <guilabel>Preferred quality</guilabel>, or add
+<userinput>--hwdec=auto</userinput> to the <guilabel>Extra mpv options</guilabel>
+to let your graphics card decode the video.
+</para></answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>Can I download videos with &kappname;?</para></question>
+<answer><para>
+No. &kappname; only streams videos. Please respect YouTube's terms of service
+and the rights of the creators.
+</para></answer>
+</qandaentry>
+
+<qandaentry>
+<question><para>Where does &kappname; store its data?</para></question>
+<answer><para>
+Settings in <filename>~/.trinity/share/config/tde-youtuberc</filename>,
+favourites and history in <filename>~/.trinity/share/config/tde-youtube-libraryrc</filename>,
+and thumbnails in <filename>~/.trinity/share/cache/tde-youtube/thumbs</filename>.
+Nothing is sent anywhere except the requests &ytdlp; and &mpv; make to YouTube.
+</para></answer>
+</qandaentry>
+</qandaset>
+</chapter>
+
+<!-- ================================================================== -->
+<chapter id="credits">
+<title>Credits and License</title>
+
+<para>&kappname;</para>
+<para>
+Program copyright 2026 tde-youtube contributors, written largely with the
+help of an AI coding assistant.
+</para>
+<para>
+&kappname; uses &ytdlp; (<ulink url="https://github.com/yt-dlp/yt-dlp">https://github.com/yt-dlp/yt-dlp</ulink>)
+and &mpv; (<ulink url="https://mpv.io">https://mpv.io</ulink>).
+</para>
+<para>
+Project page: <ulink url="https://github.com/Yjlion/tde-youtube">https://github.com/Yjlion/tde-youtube</ulink>
+</para>
+
+<!-- TRANS:CREDIT_FOR_TRANSLATORS -->
+
+&underFDL;
+&underGPL;
+
+</chapter>
+
+<!-- ================================================================== -->
+<appendix id="installation">
+<title>Installation</title>
+
+<sect1 id="getting-tde-youtube">
+<title>How to obtain &kappname;</title>
+<para>
+The source code and Debian packages built for each change are available at
+<ulink url="https://github.com/Yjlion/tde-youtube">https://github.com/Yjlion/tde-youtube</ulink>.
+Install a package with
+<userinput><command>sudo apt install</command> ./tde-youtube_*.deb</userinput>,
+which also installs &ytdlp; and &mpv;.
+</para>
+</sect1>
+
+<sect1 id="compilation">
+<title>Compilation and Installation</title>
+<para>
+You need the &tde; development files (<literal>tdelibs14-trinity-dev</literal>,
+<literal>libtqt3-mt-dev</literal>, <literal>tqt3-dev-tools</literal> and
+<literal>tde-cmake</literal> on Debian and Ubuntu), <application>CMake</application> and a C++ compiler.
+</para>
+<screen width="40">
+<prompt>%</prompt> <userinput><command>mkdir</command> build &amp;&amp; <command>cd</command> build</userinput>
+<prompt>%</prompt> <userinput><command>cmake</command> .. -DCMAKE_INSTALL_PREFIX=/opt/trinity</userinput>
+<prompt>%</prompt> <userinput><command>make</command></userinput>
+<prompt>%</prompt> <userinput><command>sudo make</command> install</userinput>
+</screen>
+</sect1>
+</appendix>
+
+&documentation.index;
+</book>
+<!--
+Local Variables:
+mode: xml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+vim:tabstop=2:shiftwidth=2:expandtab
+kate: space-indent on; indent-width 2; tab-width 2; indent-mode none;
+-->
