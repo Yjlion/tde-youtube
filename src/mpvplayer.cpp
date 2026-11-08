@@ -135,6 +135,7 @@ void MpvPlayer::play( const Video &video, bool external )
             << "--script-opts=ytdl_hook-ytdl_path=" + s.ytdlpPath
             << TQString( "--volume=%1" ).arg( s.volume );
     *m_proc << s.mpvCookieArgs();
+    *m_proc << Settings::mpvJsRuntimeArgs();
     if ( m_external ) {
         *m_proc << "--title=" + ( video.title.isEmpty() ? TQString( "tde-youtube" ) : video.title + " - tde-youtube" );
     } else {
@@ -201,8 +202,16 @@ void MpvPlayer::stop()
 
 void MpvPlayer::closeSocket()
 {
-    delete m_notifier;
-    m_notifier = 0;
+    // This can run from inside the notifier's own activated() signal (mpv
+    // closed the connection), so never delete the notifier synchronously.
+    // Disabling it first also keeps its destructor from touching the fd
+    // number, which may already belong to a new socket by then.
+    if ( m_notifier ) {
+        m_notifier->setEnabled( false );
+        m_notifier->disconnect( this );
+        m_notifier->deleteLater();
+        m_notifier = 0;
+    }
     if ( m_fd >= 0 ) {
         ::close( m_fd );
         m_fd = -1;
