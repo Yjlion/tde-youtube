@@ -1,0 +1,201 @@
+.\" Man page for tde-youtube
+.\" Copyright (C) 2026 tde-youtube contributors
+.\" This page is distributed under the GNU General Public License, version 2 or later.
+.TH TDE\-YOUTUBE 1 "November 2026" "tde-youtube 0.1.0" "Trinity Desktop Environment"
+.SH NAME
+tde\-youtube \- browse, search and play YouTube videos on the Trinity Desktop
+.SH SYNOPSIS
+.B tde\-youtube
+.RB [ \-s | \-\-search
+.IR query ]
+.RI [ URL ]
+.RI [ "generic TDE options" ]
+.RI [ "generic TQt options" ]
+.SH DESCRIPTION
+.B tde\-youtube
+(TDE YouTube) is a native application for the Trinity Desktop Environment
+(TDE) for searching, browsing and watching YouTube videos without a web
+browser.
+.PP
+Search results are shown with thumbnails, duration, channel and view count.
+Videos play inside the main window in an embedded
+.BR mpv (1)
+player, or optionally in a separate mpv window.
+Videos can be kept as favourites, and a history of watched videos is kept.
+The full description, likes and upload date of a video are shown next to the
+player.
+.PP
+tde\-youtube does not access YouTube itself:
+.BR yt\-dlp (1)
+is used to search and to read information about videos, channels and
+playlists, and
+.BR mpv (1)
+plays the videos. No YouTube account or API key is required.
+.PP
+The complete documentation is available as the
+.I TDE YouTube Handbook
+in the TDE Help Center
+.RB ( "khelpcenter help:/tde\-youtube" ),
+or by pressing F1 in the application.
+.SH OPTIONS
+.TP
+.BI "\-s, \-\-search " query
+Search YouTube for
+.I query
+on start\-up.
+.TP
+.I URL
+Open the address of a YouTube video, playlist or channel.
+A single video starts playing immediately; the videos of a playlist or
+channel are listed.
+.SS Generic options
+.TP
+.B \-\-help
+Show help about options.
+.TP
+.B \-\-help\-qt
+Show TQt specific options.
+.TP
+.B \-\-help\-tde
+Show TDE specific options.
+.TP
+.B \-\-help\-all
+Show all options.
+.TP
+.B \-\-author
+Show author information.
+.TP
+.BR \-v ", " \-\-version
+Show version information.
+.TP
+.B \-\-license
+Show license information.
+.TP
+.BI \-\-geometry " geometry"
+Set the initial geometry of the main window.
+.TP
+.BI \-\-caption " caption"
+Use
+.I caption
+as the name in the title bar.
+.TP
+.BI \-\-icon " icon"
+Use
+.I icon
+as the application icon.
+.SH KEYBOARD SHORTCUTS
+All shortcuts can be changed with
+.IR "Settings \(-> Configure Shortcuts" .
+.TP 18
+.B Ctrl+F
+Focus the search box.
+.TP
+.B Enter
+Search (in the search box) or play the selected video (in a list).
+.TP
+.B Ctrl+M
+Load more search results.
+.TP
+.B Ctrl+O
+Open the address of a video, playlist or channel.
+.TP
+.B Ctrl+P
+Play the selected video.
+.TP
+.B Ctrl+Shift+P
+Play the selected video in a separate mpv window.
+.TP
+.B Space
+Pause or resume playback.
+.TP
+.B Ctrl+.
+Stop playback.
+.TP
+.BR Ctrl+Left ", " Ctrl+Right
+Skip ten seconds backward or forward.
+.TP
+.BR Ctrl+Up ", " Ctrl+Down
+Change the volume.
+.TP
+.B Ctrl+Shift+F
+Toggle full screen mode
+.RB ( Esc
+leaves it).
+.TP
+.B Ctrl+D
+Add the selected video to the favourites, or remove it.
+.TP
+.B Del
+Remove the selected video from the favourites or history list.
+.TP
+.B Ctrl+U
+List the videos of the selected video's channel.
+.TP
+.B Ctrl+Shift+C
+Copy the address of the selected video.
+.TP
+.B Ctrl+B
+Open the selected video in the web browser.
+.TP
+.BR Ctrl+1 ", " Ctrl+2 ", " Ctrl+3
+Show the Search, Favourites or History list.
+.SH FILES
+.TP
+.I ~/.trinity/share/config/tde\-youtuberc
+Settings: paths of yt\-dlp and mpv, video quality, cookies, search history and window layout.
+.TP
+.I ~/.trinity/share/config/tde\-youtube\-libraryrc
+Favourites and watch history.
+.TP
+.I ~/.trinity/share/cache/tde\-youtube/thumbs/
+Cached video thumbnails.
+.PP
+.I ~/.trinity
+is the default value of
+.BR $TDEHOME .
+.SH ENVIRONMENT
+.TP
+.B TDEHOME
+Location of the user's TDE configuration (default
+.IR ~/.trinity ).
+.TP
+.B PATH
+Used to find
+.B yt\-dlp
+and
+.B mpv
+unless full paths are configured.
+.SH DEPENDENCIES
+.TP
+.B yt\-dlp
+Required for searching and for playback. YouTube changes often; keep yt\-dlp
+up to date.
+.TP
+.B mpv
+Required for playback; version 0.35 or newer is recommended.
+.SH DIAGNOSTICS
+If YouTube answers
+.I "Sign in to confirm you're not a bot"
+choose a web browser in which you are signed in to YouTube under
+.IR "Settings \(-> Configure TDE YouTube \(-> Programs \(-> Cookies" ,
+so that yt\-dlp can use its cookies.
+.PP
+If searching or playing stops working, update yt\-dlp first.
+.SH NOTES
+tde\-youtube was largely written with the help of an AI coding assistant
+("vibe coded"). It is provided as is, without any warranty.
+.PP
+tde\-youtube is not affiliated with, endorsed or sponsored by YouTube or
+Google. YouTube is a trademark of Google LLC.
+.SH BUGS
+Please report bugs at
+.UR https://github.com/Yjlion/tde\-youtube/issues
+.UE .
+.SH SEE ALSO
+.BR yt\-dlp (1),
+.BR mpv (1),
+.BR khelpcenter (1)
+.SH AUTHORS
+tde\-youtube contributors,
+.UR https://github.com/Yjlion/tde\-youtube
+.UE .
