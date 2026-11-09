@@ -1,7 +1,7 @@
 .\" Man page for tde-youtube
 .\" Copyright (C) 2026 tde-youtube contributors
 .\" This page is distributed under the GNU General Public License, version 2 or later.
-.TH TDE\-YOUTUBE 1 "November 2026" "tde-youtube 0.1.0" "Trinity Desktop Environment"
+.TH TDE\-YOUTUBE 1 "November 2026" "tde-youtube 0.2.0" "Trinity Desktop Environment"
 .SH NAME
 tde\-youtube \- browse, search and play YouTube videos on the Trinity Desktop
 .SH SYNOPSIS
@@ -168,8 +168,20 @@ unless full paths are configured.
 .SH DEPENDENCIES
 .TP
 .B yt\-dlp
-Required for searching and for playback. YouTube changes often; keep yt\-dlp
-up to date.
+Required for searching and for playback. By default tde\-youtube downloads
+the official portable yt\-dlp from github.com/yt\-dlp into
+.I ~/.trinity/share/apps/tde\-youtube/bin/
+and keeps it up to date; this needs
+.B python3
+3.10 or newer. An installed yt\-dlp is used when this is turned off under
+.IR "Settings \(-> Configure TDE YouTube \(-> Programs" .
+.TP
+.B QuickJS
+JavaScript engine that yt\-dlp needs to solve YouTube's challenges.
+tde\-youtube downloads QuickJS\-ng from github.com/quickjs\-ng into the same
+folder; otherwise an installed deno or
+.B qjs
+is used.
 .TP
 .B mpv
 Required for playback; version 0.35 or newer is recommended.

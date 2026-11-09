@@ -31,8 +31,8 @@ application to search, browse and watch YouTube videos without a web browser.
 - Favourites and watch history, stored locally
 - "Show channel videos", "Copy video address", "Open in web browser"
 - Optional use of your browser's cookies when YouTube asks you to sign in
-- Optionally keeps its own copy of yt-dlp up to date, so playback keeps
-  working when YouTube changes
+- Keeps its own copies of yt-dlp and QuickJS-ng up to date, so playback
+  keeps working when YouTube changes
 - Standard TDE integration: configurable shortcuts and tool bars, a
   handbook in KHelpCenter (F1) and a man page
 
@@ -74,36 +74,33 @@ or from the [releases](https://github.com/Yjlion/tde-youtube/releases) for
 tagged versions. Then:
 
 ```sh
-sudo apt install ./tde-youtube_0.1.0_amd64_trixie.deb
+sudo apt install ./tde-youtube_0.2.0_amd64_trixie.deb
 ```
 
-This also installs `mpv` and `yt-dlp`.
+This also installs `mpv` and `python3`.
 
 > [!IMPORTANT]
-> YouTube changes often, and the `yt-dlp` that comes with your distribution
-> can be too old to work. The one in Debian 13 (2025.04.30) can still search,
-> but playing fails with *"The page needs to be reloaded."*
+> YouTube changes often, and distribution packages of `yt-dlp` are usually
+> too old to work: Debian 13's (2025.04.30) can still search, but playing
+> fails with *"The page needs to be reloaded."*, and bookworm's is older still,
+> even in backports. Debian's yt-dlp also lacks the
+> [yt-dlp-ejs](https://github.com/yt-dlp/ejs) challenge solver.
 >
-> On its first start TDE YouTube therefore offers to **keep yt-dlp up to date
-> by itself**: it downloads the official
-> [portable yt-dlp](https://github.com/yt-dlp/yt-dlp#installation) (about
-> 3 MB, needs Python 3) into `~/.trinity/share/apps/tde-youtube/bin/`, verifies
-> it against the release's `SHA2-256SUMS`, and checks for a new version once a
-> day and whenever YouTube refuses a video. You can switch this on or off under
-> *Settings → Configure TDE YouTube → Programs*. Unlike Debian's package, the
-> portable yt-dlp includes the
-> [yt-dlp-ejs](https://github.com/yt-dlp/ejs) challenge solver. For full
-> YouTube support it also needs a JavaScript runtime; the small QuickJS is
-> enough and is used automatically when deno isn't installed:
+> So TDE YouTube **downloads its own helper programs** on first start and
+> keeps them up to date, into `~/.trinity/share/apps/tde-youtube/bin/`:
 >
-> ```sh
-> sudo apt install quickjs
-> ```
+> - the official [portable yt-dlp](https://github.com/yt-dlp/yt-dlp#installation)
+>   (about 3 MB, runs with Python 3.10 or newer, includes yt-dlp-ejs),
+>   verified against the release's `SHA2-256SUMS`;
+> - the [QuickJS-ng](https://github.com/quickjs-ng/quickjs/releases)
+>   JavaScript engine (a static `qjs`, about 2.5 MB, for x86_64, aarch64,
+>   armv7, x86 and riscv64), which yt-dlp uses to solve YouTube's challenges,
+>   verified against the SHA-256 digest GitHub publishes for it.
 >
-> If you'd rather not use the built-in updater, install a newer yt-dlp
-> yourself (on Debian 13: `sudo apt install -t trixie-backports yt-dlp`, or
-> `pipx install yt-dlp`) and point TDE YouTube at it under
-> *Settings → Configure TDE YouTube → Programs* if it isn't first in your `PATH`.
+> It checks for new versions once a day and whenever YouTube refuses a video.
+> You can turn this off under *Settings → Configure TDE YouTube → Programs*;
+> TDE YouTube then uses the installed `yt-dlp` and `qjs` (the packages are
+> suggested, not required).
 
 ### Building from source
 
@@ -122,9 +119,9 @@ sudo make install
 To build the Debian package yourself, run `dpkg-buildpackage -us -uc -b`
 in the source tree.
 
-At run time you need `mpv` (0.35 or newer recommended) and either `yt-dlp`
-or Python 3 for the built-in yt-dlp updater. `quickjs` (or deno) is
-recommended.
+At run time you need `mpv` (0.35 or newer recommended) and Python 3.10 or
+newer for the downloaded yt-dlp. If you turn the downloads off, install
+`yt-dlp` (and `quickjs` or deno) yourself.
 
 ## Usage
 

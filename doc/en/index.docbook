@@ -29,7 +29,7 @@
 <legalnotice>&FDLNotice;</legalnotice>
 
 <date>2026-11-07</date>
-<releaseinfo>0.1.0</releaseinfo>
+<releaseinfo>0.2.0</releaseinfo>
 
 <abstract>
 <para>
@@ -424,20 +424,24 @@ to use a newer &ytdlp; installed in your home folder.
 </para></listitem>
 </varlistentry>
 <varlistentry>
-<term><guilabel>Download yt-dlp from github.com/yt-dlp and keep it up to date</guilabel></term>
+<term><guilabel>Download yt-dlp and QuickJS from GitHub and keep them up to date</guilabel></term>
 <listitem><para>
 YouTube changes often, and the &ytdlp; that comes with your distribution is
-often too old to play videos. When this is enabled, &kappname; downloads the
-official portable &ytdlp; (about 3 MB) from
-<ulink url="https://github.com/yt-dlp/yt-dlp/releases">github.com/yt-dlp</ulink>
-into <filename>~/.trinity/share/apps/tde-youtube/bin/</filename>, checks it
-against the checksum published with the release, and looks for a new version
-once a day and whenever YouTube refuses to play a video. If a video failed
-because &ytdlp; was too old, it is played again after the update. This copy
-needs <application>Python 3</application>. Until it has been downloaded,
-the &ytdlp; entered above is used. <guibutton>Check for Updates Now</guibutton>
-checks right away. &kappname; asks once, on its first start, whether to
-enable this.
+usually too old to play videos. So by default &kappname; downloads two helper
+programs into <filename>~/.trinity/share/apps/tde-youtube/bin/</filename>:
+the official portable &ytdlp; (about 3 MB) from
+<ulink url="https://github.com/yt-dlp/yt-dlp/releases">github.com/yt-dlp</ulink>,
+which needs <application>Python 3.10</application> or newer, and the
+<application>QuickJS-ng</application> JavaScript engine (about 2.5 MB) from
+<ulink url="https://github.com/quickjs-ng/quickjs/releases">github.com/quickjs-ng</ulink>,
+which &ytdlp; uses to solve YouTube's challenges. Both are checked against
+the checksums published with their releases. &kappname; looks for new
+versions once a day and whenever YouTube refuses to play a video; if a video
+failed because &ytdlp; was too old, it is played again after the update.
+Until the download has finished, or when this is turned off, the &ytdlp;
+entered above and an installed <command>deno</command> or
+<command>qjs</command> are used. <guibutton>Check for Updates Now</guibutton>
+checks right away.
 </para></listitem>
 </varlistentry>
 <varlistentry>
@@ -703,9 +707,9 @@ which you are signed in to YouTube under
 <qandaentry>
 <question><para>Searching or playing suddenly stopped working.</para></question>
 <answer><para>
-YouTube changes frequently and old versions of &ytdlp; stop working. Enable
-<guilabel>Download yt-dlp from github.com/yt-dlp and keep it up to date</guilabel>
-on the <link linkend="config-programs">Programs</link> page and press
+YouTube changes frequently and old versions of &ytdlp; stop working. Make sure
+<guilabel>Download yt-dlp and QuickJS from GitHub and keep them up to date</guilabel>
+is enabled on the <link linkend="config-programs">Programs</link> page and press
 <guibutton>Check for Updates Now</guibutton>. Alternatively update your own
 &ytdlp; to the latest release, for example with
 <userinput><command>yt-dlp</command> <option>-U</option></userinput> (if it was installed

@@ -50,9 +50,9 @@ void Settings::load()
     cookiesFile    = c->readPathEntry( "CookiesFile" );
 
     c->setGroup( "yt-dlp" );
-    manageYtdlp         = c->readBoolEntry( "Manage", false );
-    manageYtdlpAsked    = c->readBoolEntry( "Asked", false );
+    manageYtdlp         = c->readBoolEntry( "Manage", true );
     managedYtdlpVersion = c->readEntry( "Version" );
+    managedQjsVersion   = c->readEntry( "QjsVersion" );
     TQDateTime never;
     managedYtdlpChecked = c->readDateTimeEntry( "LastCheck", &never );
 
@@ -81,8 +81,8 @@ void Settings::save()
 
     c->setGroup( "yt-dlp" );
     c->writeEntry( "Manage", manageYtdlp );
-    c->writeEntry( "Asked", manageYtdlpAsked );
     c->writeEntry( "Version", managedYtdlpVersion );
+    c->writeEntry( "QjsVersion", managedQjsVersion );
     if ( managedYtdlpChecked.isValid() )
         c->writeEntry( "LastCheck", managedYtdlpChecked );
     c->sync();
@@ -91,6 +91,11 @@ void Settings::save()
 TQString Settings::managedYtdlpPath()
 {
     return TDEGlobal::dirs()->saveLocation( "data", "tde-youtube/bin/", true ) + "yt-dlp";
+}
+
+TQString Settings::managedQjsPath()
+{
+    return TDEGlobal::dirs()->saveLocation( "data", "tde-youtube/bin/", true ) + "qjs";
 }
 
 TQString Settings::ytdlpProgram() const
@@ -143,10 +148,12 @@ TQStringList Settings::mpvCookieArgs() const
 }
 
 static TQString s_versionPath, s_version;
+static int s_hasDeno = -1;   // -1 unknown
 
-void Settings::forgetYtdlpVersion()
+void Settings::forgetHelperInfo()
 {
     s_versionPath = s_version = TQString::null;
+    s_hasDeno = -1;
 }
 
 /** Version of the yt-dlp in use, e.g. "2026.10.26" (cached per path). */
@@ -173,19 +180,28 @@ static TQString ytdlpVersion()
     return version;
 }
 
+/** Value for yt-dlp's --js-runtimes, or null to leave yt-dlp's default (deno). */
 static TQString jsRuntime()
 {
-    static int state = -1;   // -1 unchecked, 0 none, 1 quickjs
-    if ( state < 0 )
-        state = TDEStandardDirs::findExe( "deno" ).isEmpty()
-                && !TDEStandardDirs::findExe( "qjs" ).isEmpty() ? 1 : 0;
-    if ( state == 0 )
+    if ( s_hasDeno < 0 )
+        s_hasDeno = TDEStandardDirs::findExe( "deno" ).isEmpty() ? 0 : 1;
+    if ( s_hasDeno )
+        return TQString::null;   // yt-dlp uses deno by itself
+
+    TQString runtime;
+    const TQString qjs = Settings::managedQjsPath();
+    if ( Settings::self().manageYtdlp && ::access( TQFile::encodeName( qjs ), X_OK ) == 0 )
+        runtime = "quickjs:" + qjs;              // our QuickJS-ng
+    else if ( !TDEStandardDirs::findExe( "qjs" ).isEmpty() )
+        runtime = "quickjs";                     // QuickJS from the distribution
+    else
         return TQString::null;
+
     // --js-runtimes exists since yt-dlp 2025.11; older versions would refuse to run.
     // Versions are YYYY.MM.DD, so they compare correctly as strings.
     if ( ytdlpVersion() < "2025.11" )
         return TQString::null;
-    return "quickjs";
+    return runtime;
 }
 
 TQStringList Settings::ytdlpJsRuntimeArgs()

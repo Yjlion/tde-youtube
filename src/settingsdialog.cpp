@@ -12,7 +12,7 @@
 #include "settings.h"
 #include "library.h"
 #include "thumbnailloader.h"
-#include "ytdlpupdater.h"
+#include "helperupdater.h"
 
 #include <tqcheckbox.h>
 #include <tqgroupbox.h>
@@ -89,14 +89,17 @@ SettingsDialog::SettingsDialog( TQWidget *parent, const char *name )
     gl->addWidget( l2, 2, 0 );
     gl->addWidget( m_mpv, 2, 1 );
 
-    TQGroupBox *ug = new TQGroupBox( 1, TQt::Horizontal, i18n( "yt-dlp Updates" ), progs );
-    m_manageYtdlp = new TQCheckBox( i18n( "&Download yt-dlp from github.com/yt-dlp and keep it up to date" ), ug );
+    TQGroupBox *ug = new TQGroupBox( 1, TQt::Horizontal, i18n( "Downloaded Helper Programs" ), progs );
+    m_manageYtdlp = new TQCheckBox( i18n( "&Download yt-dlp and QuickJS from GitHub and keep them up to date" ), ug );
     TQWhatsThis::add( m_manageYtdlp, i18n( "YouTube changes often, and the yt-dlp of your distribution is often "
-                                           "too old to play videos. When enabled, TDE YouTube downloads the "
-                                           "official portable yt-dlp (about 3 MB, needs Python 3) into your home "
-                                           "folder, verifies its checksum and checks for a new version once a day "
-                                           "and whenever YouTube refuses a video. The yt-dlp entered above is then "
-                                           "only used until the download has finished." ) );
+                                           "too old to play videos. When enabled (the default), TDE YouTube "
+                                           "downloads the official portable yt-dlp from github.com/yt-dlp (about "
+                                           "3 MB, needs Python 3.10 or newer) and the QuickJS-ng JavaScript engine "
+                                           "from github.com/quickjs-ng (about 2.5 MB), which yt-dlp needs to solve "
+                                           "YouTube's challenges. Both are kept in your home folder, verified "
+                                           "against their published checksums and checked for new versions once "
+                                           "a day and whenever YouTube refuses a video. The yt-dlp entered above "
+                                           "is only used until the download has finished, or when this is off." ) );
     m_ytdlpStatus = new TQLabel( ug );
     m_ytdlpStatus->setAlignment( TQt::AlignLeft | TQt::AlignTop | TQt::WordBreak );
     TQHBox *ub = new TQHBox( ug );
@@ -106,8 +109,8 @@ SettingsDialog::SettingsDialog( TQWidget *parent, const char *name )
 
     connect( m_updateYtdlp, TQ_SIGNAL( clicked() ), this, TQ_SLOT( slotUpdateYtdlp() ) );
     connect( m_manageYtdlp, TQ_SIGNAL( toggled( bool ) ), m_updateYtdlp, TQ_SLOT( setEnabled( bool ) ) );
-    connect( YtDlpUpdater::self(), TQ_SIGNAL( started() ), this, TQ_SLOT( slotYtdlpUpdateStarted() ) );
-    connect( YtDlpUpdater::self(), TQ_SIGNAL( finished( int, const TQString & ) ),
+    connect( HelperUpdater::self(), TQ_SIGNAL( started() ), this, TQ_SLOT( slotYtdlpUpdateStarted() ) );
+    connect( HelperUpdater::self(), TQ_SIGNAL( finished( int, const TQString & ) ),
              this, TQ_SLOT( slotYtdlpUpdateFinished( int, const TQString & ) ) );
 
     TQGroupBox *cg = new TQGroupBox( 2, TQt::Horizontal, i18n( "Cookies" ), progs );
@@ -187,7 +190,7 @@ void SettingsDialog::load()
     m_manageYtdlp->setChecked( s.manageYtdlp );
     m_updateYtdlp->setEnabled( s.manageYtdlp );
     showYtdlpStatus();
-    if ( YtDlpUpdater::self()->isRunning() )
+    if ( HelperUpdater::self()->isRunning() )
         slotYtdlpUpdateStarted();
     m_keepHistory->setChecked( s.keepHistory );
     m_maxHistory->setValue( s.maxHistory );
@@ -207,31 +210,31 @@ void SettingsDialog::apply()
                        ? TQString::null : m_cookiesBrowser->currentText().stripWhiteSpace();
     s.cookiesFile    = m_cookiesFile->url().stripWhiteSpace();
     s.manageYtdlp    = m_manageYtdlp->isChecked();
-    s.manageYtdlpAsked = true;
-    Settings::forgetYtdlpVersion();
+    Settings::forgetHelperInfo();
     s.keepHistory    = m_keepHistory->isChecked();
     s.maxHistory     = m_maxHistory->value();
     s.save();
     enableButtonApply( false );
     emit settingsChanged();
 
-    // Just switched on: fetch yt-dlp right away.
-    if ( YtDlpUpdater::self()->checkDue() )
-        YtDlpUpdater::self()->update();
+    // Just switched on: fetch the helpers right away.
+    if ( HelperUpdater::self()->checkDue() )
+        HelperUpdater::self()->update();
 }
 
 void SettingsDialog::showYtdlpStatus( const TQString &error )
 {
     const Settings &s = Settings::self();
-    TQString text;
-    if ( !TQFile::exists( Settings::managedYtdlpPath() ) || s.managedYtdlpVersion.isEmpty() )
-        text = i18n( "Not downloaded yet." );
-    else if ( s.managedYtdlpChecked.isValid() )
-        text = i18n( "Version %1, last checked %2." )
-               .arg( s.managedYtdlpVersion )
-               .arg( TDEGlobal::locale()->formatDateTime( s.managedYtdlpChecked, true ) );
-    else
-        text = i18n( "Version %1." ).arg( s.managedYtdlpVersion );
+    const TQString none = i18n( "not downloaded yet" );
+    TQString ytdlp = TQFile::exists( Settings::managedYtdlpPath() ) && !s.managedYtdlpVersion.isEmpty()
+                     ? s.managedYtdlpVersion : none;
+    TQString qjs = TQFile::exists( Settings::managedQjsPath() ) && !s.managedQjsVersion.isEmpty()
+                   ? s.managedQjsVersion
+                   : ( HelperUpdater::qjsAssetName().isEmpty() ? i18n( "not available for this computer" ) : none );
+    TQString text = i18n( "yt-dlp: %1, QuickJS-ng: %2." ).arg( ytdlp ).arg( qjs );
+    if ( s.managedYtdlpChecked.isValid() )
+        text += " " + i18n( "Last checked %1." )
+                      .arg( TDEGlobal::locale()->formatDateTime( s.managedYtdlpChecked, true ) );
     if ( !error.isEmpty() )
         text += "\n" + i18n( "Last update failed: %1" ).arg( error );
     m_ytdlpStatus->setText( text );
@@ -241,19 +244,19 @@ void SettingsDialog::slotUpdateYtdlp()
 {
     if ( !Settings::self().manageYtdlp )
         apply();   // checked but not applied yet
-    YtDlpUpdater::self()->update();
+    HelperUpdater::self()->update();
 }
 
 void SettingsDialog::slotYtdlpUpdateStarted()
 {
     m_updateYtdlp->setEnabled( false );
-    m_ytdlpStatus->setText( i18n( "Checking for a new yt-dlp..." ) );
+    m_ytdlpStatus->setText( i18n( "Checking for new versions of yt-dlp and QuickJS-ng..." ) );
 }
 
 void SettingsDialog::slotYtdlpUpdateFinished( int result, const TQString &message )
 {
     m_updateYtdlp->setEnabled( m_manageYtdlp->isChecked() );
-    showYtdlpStatus( result == YtDlpUpdater::Failed ? message : TQString::null );
+    showYtdlpStatus( result == HelperUpdater::Failed ? message : TQString::null );
 }
 
 void SettingsDialog::slotOk()
