@@ -89,6 +89,11 @@ private slots:
     void slotPlayerError( const TQString &message );
     void slotPausedChanged( bool paused );
 
+    /** First start: ask about managed yt-dlp; later: daily update check. */
+    void slotStartupYtdlp();
+    void slotYtdlpUpdateStarted();
+    void slotYtdlpUpdateFinished( int result, const TQString &message );
+
 private:
     void setupWidgets();
     void setupActions();
@@ -100,6 +105,8 @@ private:
     Video selectedVideo() const;
     void saveLayout();
     void restoreLayout();
+    /** yt-dlp failed with @p message; update it if that looks like the cause. */
+    void maybeUpdateYtdlp( const TQString &message );
 
     // widgets
     TQSplitter     *m_hsplit;
@@ -138,6 +145,7 @@ private:
     bool           m_fullScreen;
     bool           m_menuWasVisible, m_statusWasVisible;
     bool           m_favRefreshPending, m_historyRefreshPending;
+    Video          m_retryVideo;   ///< play again once yt-dlp has been updated
     TQValueList<bool> m_toolbarsVisible;
 };
 

@@ -11,6 +11,7 @@
 #ifndef TDEYOUTUBE_SETTINGS_H
 #define TDEYOUTUBE_SETTINGS_H
 
+#include <tqdatetime.h>
 #include <tqstring.h>
 #include <tqstringlist.h>
 
@@ -40,6 +41,20 @@ public:
     TQString extraMpvArgs;
     TQString cookiesBrowser;   ///< e.g. "firefox"; empty = none
     TQString cookiesFile;      ///< Netscape cookies.txt; empty = none
+
+    /** Use our own copy of yt-dlp, downloaded from GitHub and kept up to date. */
+    bool      manageYtdlp;
+    /** The user was asked whether to use managed yt-dlp. */
+    bool      manageYtdlpAsked;
+    TQString  managedYtdlpVersion;   ///< version of our copy, e.g. "2026.10.26"
+    TQDateTime managedYtdlpChecked;  ///< last successful update check
+
+    /** Where our own copy of yt-dlp lives (~/.trinity/share/apps/tde-youtube/bin/yt-dlp). */
+    static TQString managedYtdlpPath();
+    /** The yt-dlp to run: our own copy if enabled and installed, else ytdlpPath. */
+    TQString ytdlpProgram() const;
+    /** Call after the yt-dlp program changed so its version is looked up again. */
+    static void forgetYtdlpVersion();
 
     /** Cookie options for yt-dlp itself. */
     TQStringList ytdlpCookieArgs() const;

@@ -12,9 +12,12 @@
 #include "settings.h"
 #include "library.h"
 #include "thumbnailloader.h"
+#include "ytdlpupdater.h"
 
 #include <tqcheckbox.h>
 #include <tqgroupbox.h>
+#include <tqfile.h>
+#include <tqhbox.h>
 #include <tqlabel.h>
 #include <tqlayout.h>
 #include <tqpushbutton.h>
@@ -22,6 +25,7 @@
 
 #include <kcombobox.h>
 #include <kiconloader.h>
+#include <tdeglobal.h>
 #include <klineedit.h>
 #include <tdelocale.h>
 #include <tdemessagebox.h>
@@ -69,7 +73,7 @@ SettingsDialog::SettingsDialog( TQWidget *parent, const char *name )
 
     /* ---- Programs page ---- */
     TQFrame *progs = addPage( i18n( "Programs" ), i18n( "Helper Programs" ), BarIcon( "exec", TDEIcon::SizeMedium ) );
-    TQGridLayout *gl = new TQGridLayout( progs, 6, 2, 0, spacingHint() );
+    TQGridLayout *gl = new TQGridLayout( progs, 7, 2, 0, spacingHint() );
     TQLabel *intro = new TQLabel( i18n( "tde-youtube uses <b>yt-dlp</b> to search YouTube and <b>mpv</b> to play "
                                         "videos. Enter a command name found in $PATH or a full path." ), progs );
     intro->setAlignment( TQt::AlignLeft | TQt::AlignTop | TQt::WordBreak );
@@ -84,6 +88,27 @@ SettingsDialog::SettingsDialog( TQWidget *parent, const char *name )
     l2->setBuddy( m_mpv );
     gl->addWidget( l2, 2, 0 );
     gl->addWidget( m_mpv, 2, 1 );
+
+    TQGroupBox *ug = new TQGroupBox( 1, TQt::Horizontal, i18n( "yt-dlp Updates" ), progs );
+    m_manageYtdlp = new TQCheckBox( i18n( "&Download yt-dlp from github.com/yt-dlp and keep it up to date" ), ug );
+    TQWhatsThis::add( m_manageYtdlp, i18n( "YouTube changes often, and the yt-dlp of your distribution is often "
+                                           "too old to play videos. When enabled, TDE YouTube downloads the "
+                                           "official portable yt-dlp (about 3 MB, needs Python 3) into your home "
+                                           "folder, verifies its checksum and checks for a new version once a day "
+                                           "and whenever YouTube refuses a video. The yt-dlp entered above is then "
+                                           "only used until the download has finished." ) );
+    m_ytdlpStatus = new TQLabel( ug );
+    m_ytdlpStatus->setAlignment( TQt::AlignLeft | TQt::AlignTop | TQt::WordBreak );
+    TQHBox *ub = new TQHBox( ug );
+    m_updateYtdlp = new TQPushButton( SmallIconSet( "reload" ), i18n( "Check for &Updates Now" ), ub );
+    new TQWidget( ub );   // keep the button at its natural size
+    gl->addMultiCellWidget( ug, 3, 3, 0, 1 );
+
+    connect( m_updateYtdlp, TQ_SIGNAL( clicked() ), this, TQ_SLOT( slotUpdateYtdlp() ) );
+    connect( m_manageYtdlp, TQ_SIGNAL( toggled( bool ) ), m_updateYtdlp, TQ_SLOT( setEnabled( bool ) ) );
+    connect( YtDlpUpdater::self(), TQ_SIGNAL( started() ), this, TQ_SLOT( slotYtdlpUpdateStarted() ) );
+    connect( YtDlpUpdater::self(), TQ_SIGNAL( finished( int, const TQString & ) ),
+             this, TQ_SLOT( slotYtdlpUpdateFinished( int, const TQString & ) ) );
 
     TQGroupBox *cg = new TQGroupBox( 2, TQt::Horizontal, i18n( "Cookies" ), progs );
     TQLabel *cintro = new TQLabel( i18n( "YouTube sometimes refuses to work unless you are signed in. "
@@ -102,8 +127,8 @@ SettingsDialog::SettingsDialog( TQWidget *parent, const char *name )
     m_cookiesFile = new KURLRequester( cg );
     m_cookiesFile->setFilter( "*.txt|" + i18n( "Cookie Files" ) + "\n*|" + i18n( "All Files" ) );
     cfl->setBuddy( m_cookiesFile );
-    gl->addMultiCellWidget( cg, 3, 3, 0, 1 );
-    gl->setRowStretch( 4, 1 );
+    gl->addMultiCellWidget( cg, 4, 4, 0, 1 );
+    gl->setRowStretch( 5, 1 );
 
     /* ---- Privacy page ---- */
     TQFrame *priv = addPage( i18n( "History" ), i18n( "History and Cache" ), BarIcon( "history", TDEIcon::SizeMedium ) );
@@ -138,6 +163,7 @@ SettingsDialog::SettingsDialog( TQWidget *parent, const char *name )
     connect( m_cookiesBrowser, TQ_SIGNAL( textChanged( const TQString & ) ), this, TQ_SLOT( slotChanged() ) );
     connect( m_cookiesBrowser, TQ_SIGNAL( activated( int ) ), this, TQ_SLOT( slotChanged() ) );
     connect( m_cookiesFile, TQ_SIGNAL( textChanged( const TQString & ) ), this, TQ_SLOT( slotChanged() ) );
+    connect( m_manageYtdlp, TQ_SIGNAL( toggled( bool ) ),   this, TQ_SLOT( slotChanged() ) );
     connect( m_keepHistory, TQ_SIGNAL( toggled( bool ) ),   this, TQ_SLOT( slotChanged() ) );
     connect( m_maxHistory,  TQ_SIGNAL( valueChanged( int ) ), this, TQ_SLOT( slotChanged() ) );
     enableButtonApply( false );
@@ -158,6 +184,11 @@ void SettingsDialog::load()
     else
         m_cookiesBrowser->setCurrentText( s.cookiesBrowser );
     m_cookiesFile->setURL( s.cookiesFile );
+    m_manageYtdlp->setChecked( s.manageYtdlp );
+    m_updateYtdlp->setEnabled( s.manageYtdlp );
+    showYtdlpStatus();
+    if ( YtDlpUpdater::self()->isRunning() )
+        slotYtdlpUpdateStarted();
     m_keepHistory->setChecked( s.keepHistory );
     m_maxHistory->setValue( s.maxHistory );
     m_maxHistory->setEnabled( s.keepHistory );
@@ -175,11 +206,54 @@ void SettingsDialog::apply()
     s.cookiesBrowser = m_cookiesBrowser->currentItem() == 0 && m_cookiesBrowser->currentText() == i18n( "None" )
                        ? TQString::null : m_cookiesBrowser->currentText().stripWhiteSpace();
     s.cookiesFile    = m_cookiesFile->url().stripWhiteSpace();
+    s.manageYtdlp    = m_manageYtdlp->isChecked();
+    s.manageYtdlpAsked = true;
+    Settings::forgetYtdlpVersion();
     s.keepHistory    = m_keepHistory->isChecked();
     s.maxHistory     = m_maxHistory->value();
     s.save();
     enableButtonApply( false );
     emit settingsChanged();
+
+    // Just switched on: fetch yt-dlp right away.
+    if ( YtDlpUpdater::self()->checkDue() )
+        YtDlpUpdater::self()->update();
+}
+
+void SettingsDialog::showYtdlpStatus( const TQString &error )
+{
+    const Settings &s = Settings::self();
+    TQString text;
+    if ( !TQFile::exists( Settings::managedYtdlpPath() ) || s.managedYtdlpVersion.isEmpty() )
+        text = i18n( "Not downloaded yet." );
+    else if ( s.managedYtdlpChecked.isValid() )
+        text = i18n( "Version %1, last checked %2." )
+               .arg( s.managedYtdlpVersion )
+               .arg( TDEGlobal::locale()->formatDateTime( s.managedYtdlpChecked, true ) );
+    else
+        text = i18n( "Version %1." ).arg( s.managedYtdlpVersion );
+    if ( !error.isEmpty() )
+        text += "\n" + i18n( "Last update failed: %1" ).arg( error );
+    m_ytdlpStatus->setText( text );
+}
+
+void SettingsDialog::slotUpdateYtdlp()
+{
+    if ( !Settings::self().manageYtdlp )
+        apply();   // checked but not applied yet
+    YtDlpUpdater::self()->update();
+}
+
+void SettingsDialog::slotYtdlpUpdateStarted()
+{
+    m_updateYtdlp->setEnabled( false );
+    m_ytdlpStatus->setText( i18n( "Checking for a new yt-dlp..." ) );
+}
+
+void SettingsDialog::slotYtdlpUpdateFinished( int result, const TQString &message )
+{
+    m_updateYtdlp->setEnabled( m_manageYtdlp->isChecked() );
+    showYtdlpStatus( result == YtDlpUpdater::Failed ? message : TQString::null );
 }
 
 void SettingsDialog::slotOk()
@@ -203,6 +277,7 @@ void SettingsDialog::slotDefault()
     m_mpv->setURL( "mpv" );
     m_cookiesBrowser->setCurrentItem( 0 );
     m_cookiesFile->clear();
+    m_manageYtdlp->setChecked( true );
     m_keepHistory->setChecked( true );
     m_maxHistory->setValue( 200 );
     enableButtonApply( true );

@@ -31,6 +31,8 @@ application to search, browse and watch YouTube videos without a web browser.
 - Favourites and watch history, stored locally
 - "Show channel videos", "Copy video address", "Open in web browser"
 - Optional use of your browser's cookies when YouTube asks you to sign in
+- Optionally keeps its own copy of yt-dlp up to date, so playback keeps
+  working when YouTube changes
 - Standard TDE integration: configurable shortcuts and tool bars, a
   handbook in KHelpCenter (F1) and a man page
 
@@ -80,18 +82,27 @@ This also installs `mpv` and `yt-dlp`.
 > [!IMPORTANT]
 > YouTube changes often, and the `yt-dlp` that comes with your distribution
 > can be too old to work. The one in Debian 13 (2025.04.30) can still search,
-> but playing fails with *"The page needs to be reloaded."* On Debian 13 install
-> the newer yt-dlp from backports, plus a small JavaScript runtime that current
-> yt-dlp needs for YouTube:
+> but playing fails with *"The page needs to be reloaded."*
+>
+> On its first start TDE YouTube therefore offers to **keep yt-dlp up to date
+> by itself**: it downloads the official
+> [portable yt-dlp](https://github.com/yt-dlp/yt-dlp#installation) (about
+> 3 MB, needs Python 3) into `~/.trinity/share/apps/tde-youtube/bin/`, verifies
+> it against the release's `SHA2-256SUMS`, and checks for a new version once a
+> day and whenever YouTube refuses a video. You can switch this on or off under
+> *Settings → Configure TDE YouTube → Programs*. Unlike Debian's package, the
+> portable yt-dlp includes the
+> [yt-dlp-ejs](https://github.com/yt-dlp/ejs) challenge solver. For full
+> YouTube support it also needs a JavaScript runtime; the small QuickJS is
+> enough and is used automatically when deno isn't installed:
 >
 > ```sh
-> sudo apt install -t trixie-backports yt-dlp
 > sudo apt install quickjs
 > ```
 >
-> Elsewhere, install the
-> [latest yt-dlp release](https://github.com/yt-dlp/yt-dlp#installation), for
-> example with `pipx install yt-dlp`, and point TDE YouTube at it under
+> If you'd rather not use the built-in updater, install a newer yt-dlp
+> yourself (on Debian 13: `sudo apt install -t trixie-backports yt-dlp`, or
+> `pipx install yt-dlp`) and point TDE YouTube at it under
 > *Settings → Configure TDE YouTube → Programs* if it isn't first in your `PATH`.
 
 ### Building from source
@@ -111,7 +122,9 @@ sudo make install
 To build the Debian package yourself, run `dpkg-buildpackage -us -uc -b`
 in the source tree.
 
-At run time you need `yt-dlp` and `mpv` (0.35 or newer recommended).
+At run time you need `mpv` (0.35 or newer recommended) and either `yt-dlp`
+or Python 3 for the built-in yt-dlp updater. `quickjs` (or deno) is
+recommended.
 
 ## Usage
 

@@ -14,6 +14,8 @@
 #include <kdialogbase.h>
 
 class TQCheckBox;
+class TQLabel;
+class TQPushButton;
 class KComboBox;
 class KIntNumInput;
 class KLineEdit;
@@ -39,10 +41,18 @@ private slots:
     void slotClearHistory();
     void slotClearCache();
     void slotChanged();
+    void slotUpdateYtdlp();
+    void slotYtdlpUpdateStarted();
+    void slotYtdlpUpdateFinished( int result, const TQString &message );
 
 private:
     void load();
     void apply();
+    void showYtdlpStatus( const TQString &error = TQString::null );
+
+    TQCheckBox    *m_manageYtdlp;
+    TQLabel       *m_ytdlpStatus;
+    TQPushButton  *m_updateYtdlp;
 
     KURLRequester *m_ytdlp;
     KURLRequester *m_mpv;

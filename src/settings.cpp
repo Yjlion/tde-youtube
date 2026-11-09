@@ -20,6 +20,7 @@
 #include <tqfile.h>
 
 #include <stdio.h>
+#include <unistd.h>
 
 Settings &Settings::self()
 {
@@ -48,6 +49,13 @@ void Settings::load()
     cookiesBrowser = c->readEntry( "CookiesFromBrowser" );
     cookiesFile    = c->readPathEntry( "CookiesFile" );
 
+    c->setGroup( "yt-dlp" );
+    manageYtdlp         = c->readBoolEntry( "Manage", false );
+    manageYtdlpAsked    = c->readBoolEntry( "Asked", false );
+    managedYtdlpVersion = c->readEntry( "Version" );
+    TQDateTime never;
+    managedYtdlpChecked = c->readDateTimeEntry( "LastCheck", &never );
+
     if ( resultsPerPage < 5 )   resultsPerPage = 5;
     if ( resultsPerPage > 100 ) resultsPerPage = 100;
     if ( quality < QualityBest || quality > QualityAudio ) quality = Quality1080;
@@ -70,7 +78,29 @@ void Settings::save()
     c->writeEntry( "ExtraMpvArgs", extraMpvArgs );
     c->writeEntry( "CookiesFromBrowser", cookiesBrowser );
     c->writePathEntry( "CookiesFile", cookiesFile );
+
+    c->setGroup( "yt-dlp" );
+    c->writeEntry( "Manage", manageYtdlp );
+    c->writeEntry( "Asked", manageYtdlpAsked );
+    c->writeEntry( "Version", managedYtdlpVersion );
+    if ( managedYtdlpChecked.isValid() )
+        c->writeEntry( "LastCheck", managedYtdlpChecked );
     c->sync();
+}
+
+TQString Settings::managedYtdlpPath()
+{
+    return TDEGlobal::dirs()->saveLocation( "data", "tde-youtube/bin/", true ) + "yt-dlp";
+}
+
+TQString Settings::ytdlpProgram() const
+{
+    if ( manageYtdlp ) {
+        TQString p = managedYtdlpPath();
+        if ( ::access( TQFile::encodeName( p ), X_OK ) == 0 )
+            return p;
+    }
+    return ytdlpPath;
 }
 
 TQStringList Settings::qualityNames()
@@ -112,15 +142,27 @@ TQStringList Settings::mpvCookieArgs() const
     return a;
 }
 
-/** Version of the configured yt-dlp, e.g. "2026.10.26" (cached per path). */
+static TQString s_versionPath, s_version;
+
+void Settings::forgetYtdlpVersion()
+{
+    s_versionPath = s_version = TQString::null;
+}
+
+/** Version of the yt-dlp in use, e.g. "2026.10.26" (cached per path). */
 static TQString ytdlpVersion()
 {
-    static TQString checkedPath, version;
-    const TQString path = Settings::self().ytdlpPath;
-    if ( path == checkedPath )
-        return version;
-    checkedPath = path;
+    const Settings &s = Settings::self();
+    const TQString path = s.ytdlpProgram();
+    if ( path == s_versionPath )
+        return s_version;
+    s_versionPath = path;
+    TQString &version = s_version;
     version = TQString::null;
+    if ( path == Settings::managedYtdlpPath() && !s.managedYtdlpVersion.isEmpty() ) {
+        version = s.managedYtdlpVersion;   // known, no need to run it
+        return version;
+    }
     TQCString cmd = TQFile::encodeName( TDEProcess::quote( path ) ) + " --version 2>/dev/null";
     if ( FILE *f = ::popen( cmd.data(), "r" ) ) {
         char buf[64];
