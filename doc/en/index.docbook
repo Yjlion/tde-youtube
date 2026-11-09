@@ -424,6 +424,23 @@ to use a newer &ytdlp; installed in your home folder.
 </para></listitem>
 </varlistentry>
 <varlistentry>
+<term><guilabel>Download yt-dlp from github.com/yt-dlp and keep it up to date</guilabel></term>
+<listitem><para>
+YouTube changes often, and the &ytdlp; that comes with your distribution is
+often too old to play videos. When this is enabled, &kappname; downloads the
+official portable &ytdlp; (about 3 MB) from
+<ulink url="https://github.com/yt-dlp/yt-dlp/releases">github.com/yt-dlp</ulink>
+into <filename>~/.trinity/share/apps/tde-youtube/bin/</filename>, checks it
+against the checksum published with the release, and looks for a new version
+once a day and whenever YouTube refuses to play a video. If a video failed
+because &ytdlp; was too old, it is played again after the update. This copy
+needs <application>Python 3</application>. Until it has been downloaded,
+the &ytdlp; entered above is used. <guibutton>Check for Updates Now</guibutton>
+checks right away. &kappname; asks once, on its first start, whether to
+enable this.
+</para></listitem>
+</varlistentry>
+<varlistentry>
 <term><guilabel>Use cookies from browser</guilabel></term>
 <listitem><para>
 Sometimes YouTube refuses to answer unless you are signed in, and
@@ -686,7 +703,10 @@ which you are signed in to YouTube under
 <qandaentry>
 <question><para>Searching or playing suddenly stopped working.</para></question>
 <answer><para>
-YouTube changes frequently and old versions of &ytdlp; stop working. Update
+YouTube changes frequently and old versions of &ytdlp; stop working. Enable
+<guilabel>Download yt-dlp from github.com/yt-dlp and keep it up to date</guilabel>
+on the <link linkend="config-programs">Programs</link> page and press
+<guibutton>Check for Updates Now</guibutton>. Alternatively update your own
 &ytdlp; to the latest release, for example with
 <userinput><command>yt-dlp</command> <option>-U</option></userinput> (if it was installed
 from its release page) or <userinput><command>pipx</command> upgrade yt-dlp</userinput>.

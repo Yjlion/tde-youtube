@@ -45,6 +45,8 @@ public:
     static TQString notFoundMessage();
     /** Makes a yt-dlp error line readable and adds hints for common problems. */
     static TQString friendlyError( const TQString &error );
+    /** True if @p error usually means that yt-dlp is too old for YouTube. */
+    static bool looksOutdated( const TQString &error );
 
 signals:
     void lineReceived( const TQString &line );

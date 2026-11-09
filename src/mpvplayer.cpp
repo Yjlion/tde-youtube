@@ -132,7 +132,7 @@ void MpvPlayer::play( const Video &video, bool external )
             << "--no-input-terminal" << "--quiet" << "--msg-level=all=error"
             << "--ytdl=yes"
             << "--ytdl-format=" + s.formatSelector()
-            << "--script-opts=ytdl_hook-ytdl_path=" + s.ytdlpPath
+            << "--script-opts=ytdl_hook-ytdl_path=" + s.ytdlpProgram()
             << TQString( "--volume=%1" ).arg( s.volume );
     *m_proc << s.mpvCookieArgs();
     *m_proc << Settings::mpvJsRuntimeArgs();

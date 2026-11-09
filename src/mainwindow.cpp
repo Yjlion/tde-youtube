@@ -17,6 +17,7 @@
 #include "settings.h"
 #include "settingsdialog.h"
 #include "videolist.h"
+#include "ytdlpupdater.h"
 
 #include <tqclipboard.h>
 #include <tqlabel.h>
@@ -73,6 +74,11 @@ MainWindow::MainWindow()
     connect( Library::self(), TQ_SIGNAL( historyChanged() ), this, TQ_SLOT( slotHistoryChanged() ) );
     refreshFavourites();
     refreshHistory();
+
+    connect( YtDlpUpdater::self(), TQ_SIGNAL( started() ), this, TQ_SLOT( slotYtdlpUpdateStarted() ) );
+    connect( YtDlpUpdater::self(), TQ_SIGNAL( finished( int, const TQString & ) ),
+             this, TQ_SLOT( slotYtdlpUpdateFinished( int, const TQString & ) ) );
+    TQTimer::singleShot( 300, this, TQ_SLOT( slotStartupYtdlp() ) );
 
     m_searchCombo->setFocus();
 }
@@ -392,6 +398,7 @@ void MainWindow::slotSearchError( const TQString &message )
     m_searchList->setEmptyText( i18n( "The search failed:\n%1" ).arg( message ) );
     setStatus( i18n( "Search failed: %1" ).arg( message ) );
     updateActions();
+    maybeUpdateYtdlp( message );
 }
 
 /* ---------------------------------------------------------------- actions */
@@ -682,6 +689,75 @@ void MainWindow::slotPlayerStopped()
 void MainWindow::slotPlayerError( const TQString &message )
 {
     setStatus( i18n( "Playback failed: %1" ).arg( message ) );
+    if ( Settings::self().manageYtdlp && YtDlpJob::looksOutdated( message ) )
+        m_retryVideo = m_player->currentVideo();
+    maybeUpdateYtdlp( message );
+}
+
+/* ----------------------------------------------------------------- yt-dlp */
+
+void MainWindow::slotStartupYtdlp()
+{
+    Settings &s = Settings::self();
+    if ( !s.manageYtdlpAsked ) {
+        int r = KMessageBox::questionYesNo( this,
+            i18n( "<qt><p>YouTube changes often, and the yt-dlp that comes with your "
+                  "distribution is often too old to play videos.</p>"
+                  "<p>TDE YouTube can download the official yt-dlp from "
+                  "<b>github.com/yt-dlp</b> (about 3&nbsp;MB), verify it and check for a "
+                  "new version once a day. It is kept in your home folder and needs "
+                  "Python&nbsp;3.</p>"
+                  "<p>You can change this later under <i>Settings &gt; Configure TDE "
+                  "YouTube &gt; Programs</i>.</p></qt>" ),
+            i18n( "Keep yt-dlp Up to Date?" ),
+            KGuiItem( i18n( "Keep Up to Date" ), "reload" ),
+            KGuiItem( i18n( "Use Installed yt-dlp" ) ) );
+        s.manageYtdlpAsked = true;
+        s.manageYtdlp = ( r == KMessageBox::Yes );
+        s.save();
+        Settings::forgetYtdlpVersion();
+    }
+    if ( YtDlpUpdater::self()->checkDue() )
+        YtDlpUpdater::self()->update();
+}
+
+void MainWindow::maybeUpdateYtdlp( const TQString &message )
+{
+    const Settings &s = Settings::self();
+    if ( !s.manageYtdlp || !YtDlpJob::looksOutdated( message ) || YtDlpUpdater::self()->isRunning() )
+        return;
+    // Don't ask GitHub again and again if we just checked.
+    if ( s.managedYtdlpChecked.isValid()
+         && s.managedYtdlpChecked.secsTo( TQDateTime::currentDateTime() ) < 15 * 60 ) {
+        m_retryVideo = Video();
+        return;
+    }
+    YtDlpUpdater::self()->update();
+}
+
+void MainWindow::slotYtdlpUpdateStarted()
+{
+    setStatus( i18n( "Checking for a new yt-dlp..." ) );
+}
+
+void MainWindow::slotYtdlpUpdateFinished( int result, const TQString &message )
+{
+    Video retry = m_retryVideo;
+    m_retryVideo = Video();
+
+    switch ( result ) {
+    case YtDlpUpdater::Updated:
+        setStatus( i18n( "yt-dlp was updated to version %1." ).arg( message ) );
+        if ( retry.isValid() && !m_player->isActive() )
+            playVideo( retry );
+        break;
+    case YtDlpUpdater::UpToDate:
+        setStatus( i18n( "yt-dlp %1 is up to date." ).arg( message ) );
+        break;
+    default:
+        setStatus( i18n( "Could not update yt-dlp: %1" ).arg( message ) );
+        break;
+    }
 }
 
 void MainWindow::slotPausedChanged( bool paused )
