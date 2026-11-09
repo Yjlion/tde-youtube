@@ -94,8 +94,12 @@ YtDlpJob::~YtDlpJob()
 
 TQString YtDlpJob::notFoundMessage()
 {
-    return i18n( "Could not run yt-dlp (\"%1\"). Please install yt-dlp or set "
-                 "its location in the settings." ).arg( Settings::self().ytdlpProgram() );
+    if ( Settings::self().manageYtdlp )
+        return i18n( "yt-dlp is not ready yet. TDE YouTube downloads it from GitHub; see "
+                     "Settings > Configure TDE YouTube > Programs to check the download." );
+    return i18n( "Could not run yt-dlp (\"%1\"). Please install yt-dlp, set its location, "
+                 "or let TDE YouTube download it under Settings > Configure TDE YouTube > "
+                 "Programs." ).arg( Settings::self().ytdlpProgram() );
 }
 
 TQString YtDlpJob::friendlyError( const TQString &error )

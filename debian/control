@@ -17,8 +17,9 @@ Rules-Requires-Root: no
 
 Package: tde-youtube
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, mpv, yt-dlp
-Recommends: khelpcenter-trinity, quickjs
+Depends: ${shlibs:Depends}, ${misc:Depends}, mpv, python3 (>= 3.10)
+Recommends: khelpcenter-trinity
+Suggests: yt-dlp, quickjs
 Description: YouTube browser and player for the Trinity Desktop Environment
  TDE YouTube is a native Trinity (TDE) application to search, browse and
  watch YouTube videos without a web browser.
@@ -30,7 +31,9 @@ Description: YouTube browser and player for the Trinity Desktop Environment
  shown next to the player.
  .
  yt-dlp is used to search YouTube and mpv to play the videos; no YouTube
- account or API key is needed. Because the yt-dlp of the distribution is
- often too old for YouTube, TDE YouTube can download the official portable
- yt-dlp from GitHub into the user's home folder and keep it up to date (it
- asks first). This program is not affiliated with YouTube or Google.
+ account or API key is needed. Because distribution packages of yt-dlp are
+ usually too old for YouTube, TDE YouTube downloads the official portable
+ yt-dlp and the QuickJS-ng JavaScript engine from their GitHub releases into
+ the user's home folder, verifies them and keeps them up to date. This can
+ be turned off in the settings, in which case the installed yt-dlp (and
+ quickjs) are used. This program is not affiliated with YouTube or Google.

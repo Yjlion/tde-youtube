@@ -26,7 +26,7 @@ tde_add_executable( tde-youtube AUTOMOC
     videolist.cpp
     detailspane.cpp
     mpvplayer.cpp
-    ytdlpupdater.cpp
+    helperupdater.cpp
     playercontrols.cpp
     library.cpp
 

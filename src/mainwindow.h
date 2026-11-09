@@ -146,6 +146,7 @@ private:
     bool           m_menuWasVisible, m_statusWasVisible;
     bool           m_favRefreshPending, m_historyRefreshPending;
     Video          m_retryVideo;   ///< play again once yt-dlp has been updated
+    bool           m_retrySearch;  ///< search again once yt-dlp has been downloaded
     TQValueList<bool> m_toolbarsVisible;
 };
 

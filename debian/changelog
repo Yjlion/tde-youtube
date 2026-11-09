@@ -1,3 +1,14 @@
+tde-youtube (0.2.0) unstable; urgency=medium
+
+  * Download the portable yt-dlp and QuickJS-ng from their GitHub releases
+    and keep them up to date (on by default; Settings > Programs). Distribution
+    yt-dlp packages are too old for YouTube, even in bookworm-backports.
+  * Depend on python3 (>= 3.10); yt-dlp and quickjs are now only suggested.
+  * Fix a crash when playing a video from the History list.
+  * Explain "The page needs to be reloaded" and similar yt-dlp errors.
+
+ -- tde-youtube contributors <noreply@github.com>  Sun, 08 Nov 2026 12:00:00 +0000
+
 tde-youtube (0.1.0) unstable; urgency=medium
 
   * Initial release.
