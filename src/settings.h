@@ -47,6 +47,15 @@ public:
     TQStringList mpvCookieArgs() const;
     static TQStringList cookieBrowsers();
 
+    /**
+     * yt-dlp needs a JavaScript runtime for YouTube and only looks for deno
+     * by default. If deno is missing but QuickJS (qjs) is installed, these
+     * options make yt-dlp use QuickJS.
+     */
+    static TQStringList ytdlpJsRuntimeArgs();
+    /** The same options in the form mpv passes them on to yt-dlp. */
+    static TQStringList mpvJsRuntimeArgs();
+
 private:
     Settings();
 };

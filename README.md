@@ -77,11 +77,21 @@ sudo apt install ./tde-youtube_0.1.0_amd64_trixie.deb
 
 This also installs `mpv` and `yt-dlp`.
 
-> [!TIP]
+> [!IMPORTANT]
 > YouTube changes often, and the `yt-dlp` that comes with your distribution
-> can be too old to work. If searching or playing stops working, install the
+> can be too old to work. The one in Debian 13 (2025.04.30) can still search,
+> but playing fails with *"The page needs to be reloaded."* On Debian 13 install
+> the newer yt-dlp from backports, plus a small JavaScript runtime that current
+> yt-dlp needs for YouTube:
+>
+> ```sh
+> sudo apt install -t trixie-backports yt-dlp
+> sudo apt install quickjs
+> ```
+>
+> Elsewhere, install the
 > [latest yt-dlp release](https://github.com/yt-dlp/yt-dlp#installation), for
-> example with `pipx install yt-dlp`. Then point TDE YouTube at it under
+> example with `pipx install yt-dlp`, and point TDE YouTube at it under
 > *Settings → Configure TDE YouTube → Programs* if it isn't first in your `PATH`.
 
 ### Building from source

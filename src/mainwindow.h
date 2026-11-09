@@ -78,8 +78,11 @@ private slots:
     void slotCurrentChanged( const Video &video );
     void slotContextMenu( const Video &video, const TQPoint &pos );
     void slotTabChanged( TQWidget * );
+    /** The library changed: rebuild the list later, never inside a list event. */
     void slotFavouritesChanged();
     void slotHistoryChanged();
+    void refreshFavourites();
+    void refreshHistory();
 
     void slotPlayerStarted();
     void slotPlayerStopped();
@@ -134,6 +137,7 @@ private:
     bool           m_autoPlayFirst;
     bool           m_fullScreen;
     bool           m_menuWasVisible, m_statusWasVisible;
+    bool           m_favRefreshPending, m_historyRefreshPending;
     TQValueList<bool> m_toolbarsVisible;
 };
 

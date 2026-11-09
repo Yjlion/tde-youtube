@@ -113,6 +113,19 @@ TQString YtDlpJob::friendlyError( const TQString &error )
             e.truncate( cut );
         e += " " + i18n( "YouTube wants you to be signed in. Choose a web browser you are signed in "
                          "with under Settings > Configure TDE YouTube > Programs > Cookies." );
+    } else if ( e.contains( "JavaScript runtime", false ) || e.contains( "js-runtimes" )
+                || e.contains( "challenge solver", false ) ) {
+        e += " " + i18n( "yt-dlp needs a JavaScript runtime to play YouTube videos. Install one, "
+                         "for example: sudo apt install quickjs" );
+    } else if ( e.contains( "page needs to be reloaded", false )
+                || e.contains( "Requested format is not available" )
+                || e.contains( "nsig extraction failed" )
+                || e.contains( "Signature extraction failed" )
+                || e.contains( "HTTP Error 403" ) ) {
+        // These almost always mean that YouTube changed and yt-dlp did not keep up.
+        e += " " + i18n( "Your yt-dlp is probably too old for YouTube. Install a newer one (on "
+                         "Debian 13: sudo apt install -t trixie-backports yt-dlp) or choose a newer "
+                         "yt-dlp under Settings > Configure TDE YouTube > Programs." );
     }
     return e;
 }
@@ -128,6 +141,7 @@ bool YtDlpJob::start( const TQStringList &args )
     *m_proc << Settings::self().ytdlpPath;
     *m_proc << commonArgs();
     *m_proc << Settings::self().ytdlpCookieArgs();
+    *m_proc << Settings::ytdlpJsRuntimeArgs();
     *m_proc << args;
 
     connect( m_proc, TQ_SIGNAL( receivedStdout( TDEProcess *, char *, int ) ),

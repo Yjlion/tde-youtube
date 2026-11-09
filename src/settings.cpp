@@ -14,6 +14,12 @@
 #include <tdeconfig.h>
 #include <tdeglobal.h>
 #include <tdelocale.h>
+#include <kstandarddirs.h>
+#include <kprocess.h>
+
+#include <tqfile.h>
+
+#include <stdio.h>
 
 Settings &Settings::self()
 {
@@ -103,6 +109,56 @@ TQStringList Settings::mpvCookieArgs() const
         a << "--ytdl-raw-options-append=cookies-from-browser=" + cookiesBrowser;
     if ( !cookiesFile.isEmpty() )
         a << "--ytdl-raw-options-append=cookies=" + cookiesFile;
+    return a;
+}
+
+/** Version of the configured yt-dlp, e.g. "2026.10.26" (cached per path). */
+static TQString ytdlpVersion()
+{
+    static TQString checkedPath, version;
+    const TQString path = Settings::self().ytdlpPath;
+    if ( path == checkedPath )
+        return version;
+    checkedPath = path;
+    version = TQString::null;
+    TQCString cmd = TQFile::encodeName( TDEProcess::quote( path ) ) + " --version 2>/dev/null";
+    if ( FILE *f = ::popen( cmd.data(), "r" ) ) {
+        char buf[64];
+        if ( ::fgets( buf, sizeof( buf ), f ) )
+            version = TQString::fromLatin1( buf ).stripWhiteSpace();
+        ::pclose( f );
+    }
+    return version;
+}
+
+static TQString jsRuntime()
+{
+    static int state = -1;   // -1 unchecked, 0 none, 1 quickjs
+    if ( state < 0 )
+        state = TDEStandardDirs::findExe( "deno" ).isEmpty()
+                && !TDEStandardDirs::findExe( "qjs" ).isEmpty() ? 1 : 0;
+    if ( state == 0 )
+        return TQString::null;
+    // --js-runtimes exists since yt-dlp 2025.11; older versions would refuse to run.
+    // Versions are YYYY.MM.DD, so they compare correctly as strings.
+    if ( ytdlpVersion() < "2025.11" )
+        return TQString::null;
+    return "quickjs";
+}
+
+TQStringList Settings::ytdlpJsRuntimeArgs()
+{
+    TQStringList a;
+    if ( !jsRuntime().isEmpty() )
+        a << "--js-runtimes" << jsRuntime();
+    return a;
+}
+
+TQStringList Settings::mpvJsRuntimeArgs()
+{
+    TQStringList a;
+    if ( !jsRuntime().isEmpty() )
+        a << "--ytdl-raw-options-append=js-runtimes=" + jsRuntime();
     return a;
 }
 

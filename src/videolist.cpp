@@ -197,9 +197,25 @@ VideoItem *VideoListView::addVideo( const Video &video )
 
 void VideoListView::setVideos( const VideoList &videos )
 {
+    // Keep the current video and the scroll position across the rebuild.
+    TQListViewItem *cur = currentItem();
+    const TQString curId = cur ? static_cast<VideoItem *>( cur )->video().id : TQString::null;
+    const bool wasSelected = cur && cur->isSelected();
+    const int x = contentsX(), y = contentsY();
+
     clearVideos();
     for ( VideoList::ConstIterator it = videos.begin(); it != videos.end(); ++it )
         addVideo( *it );
+
+    if ( !curId.isEmpty() ) {
+        TQMap<TQString, VideoItem *>::ConstIterator it = m_items.find( curId );
+        if ( it != m_items.end() ) {
+            setCurrentItem( *it );
+            if ( wasSelected )
+                setSelected( *it, true );
+        }
+    }
+    setContentsPos( x, y );
 }
 
 void VideoListView::removeVideo( const TQString &id )

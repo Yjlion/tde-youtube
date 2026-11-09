@@ -19,6 +19,7 @@ Package: tde-youtube
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, mpv, yt-dlp
 Recommends: khelpcenter-trinity
+Suggests: quickjs
 Description: YouTube browser and player for the Trinity Desktop Environment
  TDE YouTube is a native Trinity (TDE) application to search, browse and
  watch YouTube videos without a web browser.

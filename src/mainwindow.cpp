@@ -48,7 +48,8 @@
 MainWindow::MainWindow()
     : TDEMainWindow( 0, "tde-youtube-mainwindow" ),
       m_requested( 0 ), m_autoPlayFirst( false ), m_fullScreen( false ),
-      m_menuWasVisible( true ), m_statusWasVisible( true )
+      m_menuWasVisible( true ), m_statusWasVisible( true ),
+      m_favRefreshPending( false ), m_historyRefreshPending( false )
 {
     m_backend = new SearchBackend( this );
     connect( m_backend, TQ_SIGNAL( videoFound( const Video & ) ), this, TQ_SLOT( slotVideoFound( const Video & ) ) );
@@ -70,8 +71,8 @@ MainWindow::MainWindow()
 
     connect( Library::self(), TQ_SIGNAL( favouritesChanged() ), this, TQ_SLOT( slotFavouritesChanged() ) );
     connect( Library::self(), TQ_SIGNAL( historyChanged() ), this, TQ_SLOT( slotHistoryChanged() ) );
-    slotFavouritesChanged();
-    slotHistoryChanged();
+    refreshFavourites();
+    refreshHistory();
 
     m_searchCombo->setFocus();
 }
@@ -625,14 +626,38 @@ void MainWindow::slotTabChanged( TQWidget * )
     updateActions();
 }
 
+// The library often changes while a list is still handling an event for one
+// of its items: double-clicking (or pressing Enter on) a History entry plays
+// it, which moves it to the top of the history. Rebuilding the list right
+// away deletes that item while TQListView is still using it, which crashed.
+// So rebuild from the event loop instead.
+
 void MainWindow::slotFavouritesChanged()
 {
-    m_favList->setVideos( Library::self()->favourites() );
-    updateActions();
+    if ( m_favRefreshPending )
+        return;
+    m_favRefreshPending = true;
+    TQTimer::singleShot( 0, this, TQ_SLOT( refreshFavourites() ) );
 }
 
 void MainWindow::slotHistoryChanged()
 {
+    if ( m_historyRefreshPending )
+        return;
+    m_historyRefreshPending = true;
+    TQTimer::singleShot( 0, this, TQ_SLOT( refreshHistory() ) );
+}
+
+void MainWindow::refreshFavourites()
+{
+    m_favRefreshPending = false;
+    m_favList->setVideos( Library::self()->favourites() );
+    updateActions();
+}
+
+void MainWindow::refreshHistory()
+{
+    m_historyRefreshPending = false;
     m_historyList->setVideos( Library::self()->history() );
     updateActions();
 }
